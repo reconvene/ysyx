@@ -74,6 +74,7 @@ sim: build
 
 build: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	# 移除原obj_dir
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@rm -rf $(OBJ_DIR)
 	# 编译
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
