@@ -9,7 +9,7 @@ INC_PATH ?=
 VERILATOR = verilator
 # 启用O3优化、禁用断言、生成依赖文件、优化仿真速度
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert --trace
+				-O3 --x-assign fast --x-initial fast --noassert --trace-fst
 
 # 定义构建目标目录
 BUILD_DIR = ./build
