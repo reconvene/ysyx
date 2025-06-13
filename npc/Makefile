@@ -1,5 +1,5 @@
 # 顶部模块名字
-TOPNAME = top
+TOPNAME = streamingLightTop
 # 引口绑定文件名
 NXDC_FILES = constr/top.nxdc
 
@@ -20,9 +20,9 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 # 创建构建目录
 $(shell mkdir -p $(BUILD_DIR))
 
-# 定义C源码文件
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 # 定义Verilog源码文件
+VSRCS = $(shell find $(abspath ./vsrc) -name "*.*v")
+# 定义C源码文件
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 # 添加自动绑定端口文件
 CSRCS += $(SRC_AUTO_BIND)
@@ -70,7 +70,7 @@ clean:
 
 sim: build
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	./build/top
+	./build/$(TOPNAME)
 
 build: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	# 移除原obj_dir
