@@ -1,5 +1,5 @@
 # 顶部模块名字
-TOPNAME = streamingLightTop
+TOPNAME = displayCodecTop
 # 引口绑定文件名
 NXDC_FILES = constr/top.nxdc
 
@@ -23,7 +23,7 @@ $(shell mkdir -p $(BUILD_DIR))
 # 定义Verilog源码文件
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.*v")
 # 定义C源码文件
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "sim_main.cpp")
 # 添加自动绑定端口文件
 CSRCS += $(SRC_AUTO_BIND)
 

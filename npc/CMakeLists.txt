@@ -12,4 +12,4 @@ include_directories(
         ./include
 )
 
-add_executable(npc csrc/sim_main.cpp)
+add_executable(npc csrc/streamingLight_sim_main.cpp)

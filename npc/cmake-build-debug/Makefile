@@ -136,29 +136,29 @@ npc/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/build
 .PHONY : npc/fast
 
-csrc/sim_main.o: csrc/sim_main.cpp.o
-.PHONY : csrc/sim_main.o
+csrc/streamingLight_sim_main.o: csrc/streamingLight_sim_main.cpp.o
+.PHONY : csrc/streamingLight_sim_main.o
 
 # target to build an object file
-csrc/sim_main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/csrc/sim_main.cpp.o
-.PHONY : csrc/sim_main.cpp.o
+csrc/streamingLight_sim_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/csrc/streamingLight_sim_main.cpp.o
+.PHONY : csrc/streamingLight_sim_main.cpp.o
 
-csrc/sim_main.i: csrc/sim_main.cpp.i
-.PHONY : csrc/sim_main.i
+csrc/streamingLight_sim_main.i: csrc/streamingLight_sim_main.cpp.i
+.PHONY : csrc/streamingLight_sim_main.i
 
 # target to preprocess a source file
-csrc/sim_main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/csrc/sim_main.cpp.i
-.PHONY : csrc/sim_main.cpp.i
+csrc/streamingLight_sim_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/csrc/streamingLight_sim_main.cpp.i
+.PHONY : csrc/streamingLight_sim_main.cpp.i
 
-csrc/sim_main.s: csrc/sim_main.cpp.s
-.PHONY : csrc/sim_main.s
+csrc/streamingLight_sim_main.s: csrc/streamingLight_sim_main.cpp.s
+.PHONY : csrc/streamingLight_sim_main.s
 
 # target to generate assembly for a file
-csrc/sim_main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/csrc/sim_main.cpp.s
-.PHONY : csrc/sim_main.cpp.s
+csrc/streamingLight_sim_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/npc.dir/build.make CMakeFiles/npc.dir/csrc/streamingLight_sim_main.cpp.s
+.PHONY : csrc/streamingLight_sim_main.cpp.s
 
 # Help Target
 help:
@@ -170,9 +170,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... npc"
-	@echo "... csrc/sim_main.o"
-	@echo "... csrc/sim_main.i"
-	@echo "... csrc/sim_main.s"
+	@echo "... csrc/streamingLight_sim_main.o"
+	@echo "... csrc/streamingLight_sim_main.i"
+	@echo "... csrc/streamingLight_sim_main.s"
 .PHONY : help
 
 
