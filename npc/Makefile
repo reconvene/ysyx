@@ -1,5 +1,5 @@
 # 顶部模块名字
-TOPNAME = Vps2Connecter
+TOPNAME = ps2Connecter
 # 引口绑定文件名
 NXDC_FILES = constr/top.nxdc
 
