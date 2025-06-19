@@ -52,6 +52,17 @@ static int cmd_q(char *args) {
   exit(0);
 }
 
+static int cmd_si(char *args){
+    char *remainingStr;
+    int execStep= strtol(args,&remainingStr,10);
+    if(strlen(remainingStr)!=0){
+        puts("invalid input");
+        return 0;
+    }
+    cpu_exec(execStep);
+    return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -62,6 +73,8 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  {"si","Execute the program for N steps",cmd_si},
+
 
   /* TODO: Add more commands */
 
