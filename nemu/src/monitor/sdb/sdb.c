@@ -63,6 +63,15 @@ static int cmd_si(char *args){
     return 0;
 }
 
+static int cmd_info(char *args){
+    if(strcmp(args,"r")==0){
+        isa_reg_display();
+    }else{
+        puts("invalid input");
+    }
+    return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -74,6 +83,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   {"si","Execute the program for N steps",cmd_si},
+  {"info","View the registers using a specified method",cmd_info}
 
 
   /* TODO: Add more commands */
