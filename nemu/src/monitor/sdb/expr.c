@@ -24,15 +24,15 @@
 enum {
   TK_NOTYPE = 256,
   TK_EQ,
-  TK_NUM,
   TK_LEFT_SP,
   TK_RIGHT_SP,
+  TK_NUM,
   TK_PLUS,
-  TK_MUL,
   TK_SUB,
+  TK_MUL,
   TK_DIV,
   TK_MOD,
-  TK_POW
+  TK_POW,
 
   /* TODO: Add more token types */
 
@@ -173,6 +173,26 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
   return true;
 }
 
+// 判断优先级
+uint8_t judgeLevel(int inputValue){
+  switch (inputValue) {
+    case TK_PLUS:
+    case TK_SUB:
+      return 1;
+
+    case TK_MUL:
+    case TK_DIV:
+    case TK_MOD:
+      return 2;
+
+    case TK_POW:
+      return 3;
+
+    default:
+      return 0;
+  }
+}
+
 // 验证表达式
 int eval(uint8_t start, uint8_t end){
   // 如果开头大于结尾则输入参数有问题
@@ -189,12 +209,19 @@ int eval(uint8_t start, uint8_t end){
     return eval(start+1,end-1);
 
   } else{
+    uint8_t tmpPriority=0;
     uint8_t opPosition=0;
     uint8_t SPNum=0;
     // 遍历找到运算符位置
     for(uint8_t i=start;i<=end;++i){
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
-      if(tokens[i].type>260 && SPNum==0) opPosition=i;
+      if(tokens[i].type>260 && SPNum==0) {
+        // 判断运算符的优先级，在预算符相同优先级时选择最左边的
+        if(judgeLevel(tokens[i].type)>tmpPriority){
+          opPosition=i;
+          tmpPriority=judgeLevel(tokens[i].type);
+        }
+      }
       // 遇到左括号+1，遇到右括号-1
       if(tokens[i].type==TK_LEFT_SP) SPNum+=1;
       if(tokens[i].type==TK_RIGHT_SP) SPNum-=1;
