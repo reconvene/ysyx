@@ -177,7 +177,7 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
 int eval(uint8_t start, uint8_t end){
   // 如果开头大于结尾则输入参数有问题
   if(start>end){
-    panic("the number of len is invalid");
+    Assert(0,"the number of len is invalid");
 
   // 如果开头等于结尾，则必定为数字
   } else if(end==start){
