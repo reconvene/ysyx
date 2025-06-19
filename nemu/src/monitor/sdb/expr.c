@@ -161,7 +161,7 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
 
   // 内部括号不匹配
   if(SPNum!=0){
-    Assert(0,"the brackets aren't matching");
+    panic("the brackets aren't matching");
     return false;
   }
 
@@ -177,7 +177,7 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
 int eval(uint8_t start, uint8_t end){
   // 如果开头大于结尾则输入参数有问题
   if(start>end){
-    Assert(0,"the number of len is invalid");
+    panic("the number of len is invalid");
 
   // 如果开头等于结尾，则必定为数字
   } else if(end==start){
@@ -220,7 +220,7 @@ int eval(uint8_t start, uint8_t end){
       case TK_MOD:
         return leftValue%rightValue;
       default:
-        Assert(0,"the expression has something wrong");
+        panic("the expression has something wrong");
     }
   }
 }
