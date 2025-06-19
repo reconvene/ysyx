@@ -69,6 +69,7 @@ static int cmd_info(char *args){
 }
 
 static int cmd_x(char *args){
+    printf("%s\n",args);
     char *stringLen = strtok(args," ");
     char *exp= args+ strlen(stringLen) +1;
 
