@@ -212,8 +212,9 @@ int eval(uint8_t start, uint8_t end){
     uint8_t tmpPriority=0;
     uint8_t opPosition=0;
     uint8_t SPNum=0;
+    uint8_t i=start;
     // 遍历找到运算符位置
-    for(uint8_t i=start;i<=end;++i){
+    for(;i<=end;++i){
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
       if(tokens[i].type>260 && SPNum==0) {
         // 判断运算符的优先级，在预算符相同优先级时选择最左边的
@@ -228,11 +229,12 @@ int eval(uint8_t start, uint8_t end){
     }
 
     // 对俩边表达式进行求值
+    printf("%s\n",tokens[i].str);
     uint8_t leftValue= eval(start,opPosition-1);
     uint8_t rightValue= eval(opPosition+1,end);
-    printf("start:%d end:%d\n",start,end);
-    printf("leftValue:%d\n",leftValue);
-    printf("rightValue:%d\n",rightValue);
+//    printf("start:%d end:%d\n",start,end);
+//    printf("leftValue:%d\n",leftValue);
+//    printf("rightValue:%d\n",rightValue);
 
     // 进行相应计算
     switch (tokens[opPosition].type) {
