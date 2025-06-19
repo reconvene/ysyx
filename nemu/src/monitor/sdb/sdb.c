@@ -80,6 +80,7 @@ static int cmd_x(char *args){
     for(uint i=0;i< atoi(stringLen);++i){
         printf("%02X ",*(realAddr+i));
     }
+    printf("\n");
     return 0;
 }
 
