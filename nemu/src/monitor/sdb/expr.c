@@ -191,7 +191,7 @@ int eval(uint8_t start, uint8_t end){
   } else{
     uint8_t opPosition=0;
     uint8_t SPNum=0;
-
+    printf("start:%d end:%d\n",start,end);
     // 遍历找到运算符位置
     for(uint8_t i=start;i<=end;++i){
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
