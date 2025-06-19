@@ -73,8 +73,7 @@ static int cmd_x(char *args){
   char *stringLen = strtok(args," ");
   char *exp= args+ strlen(stringLen) +1;
 
-  _Bool evalResult=0;
-  expr(exp,&evalResult);
+  _Bool evalResult=expr(exp,&evalResult);
   assert(evalResult);
 
   // 计算表达式字符串，并将其映射到宿主机内存地址中
