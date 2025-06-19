@@ -235,5 +235,5 @@ word_t expr(char *e, bool *success) {
   int resultNum=eval(0,nr_token-1);
   printf("result:%d\n",resultNum);
 
-  return 0;
+  return 1;
 }
