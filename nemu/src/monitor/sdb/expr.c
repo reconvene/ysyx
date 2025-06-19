@@ -209,15 +209,16 @@ int eval(uint8_t start, uint8_t end){
     return eval(start+1,end-1);
 
   } else{
-    uint8_t tmpPriority=0;
+    uint8_t tmpPriority=10;
     uint8_t opPosition=0;
+
     uint8_t SPNum=0;
     uint8_t i=start;
     // 遍历找到运算符位置
     for(;i<=end;++i){
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
       // 判断运算符的优先级，在预算符相同优先级时选择最左边的
-      if(tokens[i].type>260 && SPNum==0j && judgeLevel(tokens[i].type)>tmpPriority) {
+      if(tokens[i].type>260 && SPNum==0j && judgeLevel(tokens[i].type)<tmpPriority) {
           opPosition=i;
           tmpPriority=judgeLevel(tokens[i].type);
       }
