@@ -216,12 +216,10 @@ int eval(uint8_t start, uint8_t end){
     // 遍历找到运算符位置
     for(;i<=end;++i){
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
-      if(tokens[i].type>260 && SPNum==0) {
-        // 判断运算符的优先级，在预算符相同优先级时选择最左边的
-        if(judgeLevel(tokens[i].type)>tmpPriority){
+      // 判断运算符的优先级，在预算符相同优先级时选择最左边的
+      if(tokens[i].type>260 && SPNum==0j && judgeLevel(tokens[i].type)>tmpPriority) {
           opPosition=i;
           tmpPriority=judgeLevel(tokens[i].type);
-        }
       }
       // 遇到左括号+1，遇到右括号-1
       if(tokens[i].type==TK_LEFT_SP) SPNum+=1;
