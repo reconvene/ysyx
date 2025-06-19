@@ -232,7 +232,7 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  int resultNum=eval(0,nr_token-1);
+  int resultNum=eval(0,nr_token);
   printf("result:%d\n",resultNum);
 
   return 0;
