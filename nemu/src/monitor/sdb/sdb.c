@@ -91,6 +91,12 @@ static int cmd_x(char *args){
   return 0;
 }
 
+static int cmd_p(char *args){
+  _Bool evalResult=false;
+  printf("result:%d\n", expr(args,&evalResult));
+  return evalResult;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -103,7 +109,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   {"si","Execute the program for N steps",cmd_si},
   {"info","View the registers using a specified method",cmd_info},
-  {"x","View memory using an expression and a step size",cmd_x}
+  {"x","View memory using an expression and a step size",cmd_x},
+  {"p", "Calculate the expression",cmd_p}
 
 
   /* TODO: Add more commands */
