@@ -19,18 +19,19 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <math.h>
 
 enum {
   TK_NOTYPE = 256,
   TK_EQ,
   TK_NUM,
+  TK_LEFT_SP,
+  TK_RIGHT_SP,
   TK_PLUS,
   TK_MUL,
   TK_SUB,
   TK_DIV,
   TK_MOD,
-  TK_LEFT_SP,
-  TK_RIGHT_SP,
   TK_POW
 
   /* TODO: Add more token types */
@@ -146,6 +147,83 @@ static bool make_token(char *e) {
   return true;
 }
 
+// 检查表达式是否被括号包裹
+_Bool check_parentheses(uint8_t start, uint8_t end){
+
+  // 声明括号数量
+  uint8_t SPNum=0;
+  // 遍历token
+  for(uint8_t i=start;i<=end;++i){
+    // 遇到左括号+1，遇到右括号-1
+    if(tokens[i].type==TK_LEFT_SP) SPNum+=1;
+    if(tokens[i].type==TK_RIGHT_SP) SPNum-=1;
+  }
+
+  // 内部括号不匹配
+  if(SPNum!=0){
+    panic("the brackets aren't matching");
+    return false;
+  }
+
+  // 如果表达式没被括号包裹则进行计算
+  if(tokens[start].type!= TK_LEFT_SP || tokens[end].type!=TK_RIGHT_SP){
+    return false;
+  }
+
+  return true;
+}
+
+// 验证表达式
+int eval(uint8_t start, uint8_t end){
+  // 如果开头大于结尾则输入参数有问题
+  if(start>end){
+    panic("the number of len is invalid");
+
+  // 如果开头等于结尾，则必定为数字
+  } else if(end==start){
+    assert(tokens[start].type==TK_NUM);
+    return atoi(tokens[start].str);
+
+  // 判断一下俩边是否有被括号包裹且格式是否正确，如果格式不正确则直接结束程序
+  }else if(check_parentheses(start,end)){
+    return eval(start+1,end-1);
+
+  } else{
+    uint8_t opPosition=0;
+    uint8_t SPNum=0;
+
+    // 遍历找到运算符位置
+    for(uint8_t i=start;i<=end;++i){
+      // 如果找到运算符且其没有被表达式包裹则设为主运算符
+      if(tokens[i].type>260 && SPNum==0) opPosition=i;
+      // 遇到左括号+1，遇到右括号-1
+      if(tokens[i].type==TK_LEFT_SP) SPNum+=1;
+      if(tokens[i].type==TK_RIGHT_SP) SPNum-=1;
+    }
+
+    // 对俩边表达式进行求值
+    uint8_t leftValue= eval(start,opPosition-1);
+    uint8_t rightValue= eval(opPosition+1,end);
+
+    // 进行相应计算
+    switch (tokens[opPosition].type) {
+      case TK_PLUS:
+        return leftValue+rightValue;
+      case TK_SUB:
+        return leftValue-rightValue;
+      case TK_MUL:
+        return leftValue*rightValue;
+      case TK_DIV:
+        return leftValue/rightValue;
+      case TK_POW:
+        return pow(leftValue,rightValue);
+      case TK_MOD:
+        return leftValue%rightValue;
+      default:
+        panic("the expression has something wrong");
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -154,9 +232,8 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  for(uint8_t i=0;i<nr_token;++i){
-    printf("%d\n",tokens[i].type);
-  }
+  int resultNum=eval(0,nr_token-1);
+  printf("result:%d\n",resultNum);
 
   return 0;
 }
