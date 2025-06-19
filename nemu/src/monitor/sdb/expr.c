@@ -227,7 +227,7 @@ int eval(uint8_t start, uint8_t end){
     }
 
     // 对俩边表达式进行求值
-    printf("%d%s\n",opPosition,tokens[i].str);
+    printf("%d%s\n",opPosition,tokens[opPosition].str);
     uint8_t leftValue= eval(start,opPosition-1);
     uint8_t rightValue= eval(opPosition+1,end);
 //    printf("start:%d end:%d\n",start,end);
