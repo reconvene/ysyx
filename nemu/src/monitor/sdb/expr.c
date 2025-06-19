@@ -161,7 +161,7 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
 
   // 内部括号不匹配
   if(SPNum!=0){
-    panic("the brackets aren't matching");
+    Assert(0,"the brackets aren't matching");
     return false;
   }
 
@@ -220,7 +220,7 @@ int eval(uint8_t start, uint8_t end){
       case TK_MOD:
         return leftValue%rightValue;
       default:
-        panic("the expression has something wrong");
+        Assert(0,"the expression has something wrong");
     }
   }
 }
