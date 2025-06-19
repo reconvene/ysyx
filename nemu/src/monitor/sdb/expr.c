@@ -56,7 +56,7 @@ static struct rule {
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\\^",TK_POW},
-  {"\\[0-9]+",TK_NUM}
+  {"[0-9]+",TK_NUM}
 
 };
 
