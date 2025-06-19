@@ -93,7 +93,7 @@ static int cmd_x(char *args){
 
 static int cmd_p(char *args){
   _Bool evalResult=false;
-  printf("result:%d\n", expr(args,&evalResult));
+  expr(args,&evalResult);
   return evalResult;
 }
 
