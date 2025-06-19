@@ -73,7 +73,7 @@ static int cmd_x(char *args){
     char *stringLen = strtok(args," ");
     char *exp= args+ strlen(stringLen) +1;
 
-    paddr_t expResult= strtol(exp,NULL,32);
+    paddr_t expResult= strtol(exp,NULL,16);
     printf("startAddr: 0x%08X     ", expResult);
     uint8_t *realAddr= guest_to_host(expResult);
 
