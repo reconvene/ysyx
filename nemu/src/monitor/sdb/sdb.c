@@ -78,6 +78,7 @@ static int cmd_x(char *args){
     uint8_t *realAddr= guest_to_host(expResult);
 
     for(uint i=atoi(stringLen)-1;i==0;--i){
+        printf("%d\n",i);
         printf("%02X ",*(realAddr+i));
     }
     printf("\n");
