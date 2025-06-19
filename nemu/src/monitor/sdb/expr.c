@@ -56,7 +56,7 @@ static struct rule {
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\\^",TK_POW},
-  {"\\d+",TK_NUM}
+  {"\\[0-9]+",TK_NUM}
 
 };
 
@@ -113,19 +113,21 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
-        // 声明Token变量
-        Token currentToken;
-        // 最多复制32个字符
-        strncpy(currentToken.str,substr_start,substr_len>32?32:substr_len);
-        // 将字符串末尾加上/0
-        currentToken.str[(substr_len)-1>=31?31:substr_len]='\0';
+        if(rules[i].token_type!=TK_NOTYPE){
+          // 声明Token变量
+          Token currentToken;
+          // 最多复制32个字符
+          strncpy(currentToken.str,substr_start,substr_len>32?32:substr_len);
+          // 将字符串末尾加上/0
+          currentToken.str[(substr_len)-1>=31?31:substr_len]='\0';
 
-        // 标定当前token类别
-        currentToken.type=rules[i].token_type;
-        // 循环写入tokens
-        tokens[nr_token%32]=currentToken;
-        assert(tokens[nr_token%32].type==currentToken.type);
-        nr_token+=1;
+          // 标定当前token类别
+          currentToken.type=rules[i].token_type;
+          // 循环写入tokens
+          tokens[nr_token%32]=currentToken;
+          assert(tokens[nr_token%32].type==currentToken.type);
+          nr_token+=1;
+        }
 
 //        switch (rules[i].token_type) {
 //          default: TODO();
