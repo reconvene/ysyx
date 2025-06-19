@@ -195,7 +195,7 @@ uint8_t judgeLevel(int inputValue){
 }
 
 // 验证表达式
-int eval(uint8_t start, uint8_t end){
+long int eval(uint8_t start, uint8_t end){
   // 如果开头大于结尾则输入参数有问题
   if(start>end){
     panic("the number of len is invalid");
@@ -203,7 +203,7 @@ int eval(uint8_t start, uint8_t end){
   // 如果开头等于结尾，则必定为数字
   } else if(end==start){
     assert(tokens[start].type==TK_NUM);
-    return atoi(tokens[start].str);
+    return strtol(tokens[start].str,NULL,0);
 
   // 判断一下俩边是否有被括号包裹且格式是否正确，如果格式不正确则直接结束程序
   }else if(check_parentheses(start,end)){
@@ -230,8 +230,8 @@ int eval(uint8_t start, uint8_t end){
 
     // 对俩边表达式进行求值
     printf("%d%s\n",opPosition,tokens[opPosition].str);
-    int leftValue= eval(start,opPosition-1);
-    int rightValue= eval(opPosition+1,end);
+    long int leftValue= eval(start,opPosition-1);
+    long int rightValue= eval(opPosition+1,end);
 //    printf("start:%d end:%d\n",start,end);
 //    printf("leftValue:%d\n",leftValue);
 //    printf("rightValue:%d\n",rightValue);
@@ -247,7 +247,7 @@ int eval(uint8_t start, uint8_t end){
       case TK_DIV:
         return leftValue/rightValue;
       case TK_POW:
-        return pow(leftValue,rightValue);
+        return (long int)pow(leftValue,rightValue);
       case TK_MOD:
         return leftValue%rightValue;
       default:
@@ -256,6 +256,7 @@ int eval(uint8_t start, uint8_t end){
   }
 }
 
+// 计算表达式
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
@@ -263,8 +264,9 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  int resultNum=eval(0,nr_token-1);
-  printf("result:%d\n",resultNum);
+  // 计算拆分结果
+  long int resultNum=eval(0,nr_token-1);
+  printf("result:%ld\n",resultNum);
 
   return 1;
 }
