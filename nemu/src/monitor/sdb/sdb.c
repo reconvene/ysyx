@@ -18,6 +18,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include "memory/paddr.h"
 
 static int is_batch_mode = false;
 
@@ -53,12 +54,7 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_si(char *args){
-    char *remainingStr;
-    int execStep= strtol(args,&remainingStr,10);
-    if(strlen(remainingStr)!=0){
-        puts("invalid input");
-        return 0;
-    }
+    int execStep= strtol(args,NULL,10);
     cpu_exec(execStep);
     return 0;
 }
@@ -68,6 +64,20 @@ static int cmd_info(char *args){
         isa_reg_display();
     }else{
         puts("invalid input");
+    }
+    return 0;
+}
+
+static int cmd_x(char *args){
+    char *stringLen = strtok(args," ");
+    char *exp= args+ strlen(stringLen) +1;
+
+    paddr_t expResult= strtol(exp,NULL,32);
+    printf("startAddr: 0x%08X     ", expResult);
+    uint8_t *realAddr= guest_to_host(expResult);
+
+    for(uint i=0;i< atoi(stringLen);++i){
+        printf("%02X ",*(realAddr+i));
     }
     return 0;
 }
@@ -83,7 +93,8 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   {"si","Execute the program for N steps",cmd_si},
-  {"info","View the registers using a specified method",cmd_info}
+  {"info","View the registers using a specified method",cmd_info},
+  {"x","View memory using an expression and a step size",cmd_x}
 
 
   /* TODO: Add more commands */
