@@ -29,7 +29,7 @@ void isa_reg_display() {
         if(i%8==0 && i!=0) printf("\n");
         printf("%d ",*(cpu.gpr+i));
     }
-    printf("------------------------\n");
+    printf("\n------------------------\n");
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
