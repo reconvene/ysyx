@@ -54,34 +54,42 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_si(char *args){
-    int execStep= strtol(args,NULL,10);
-    cpu_exec(execStep);
-    return 0;
+  long int execStep= strtol(args,NULL,10);
+  cpu_exec(execStep);
+  return 0;
 }
 
 static int cmd_info(char *args){
-    if(strcmp(args,"r")==0){
-        isa_reg_display();
-    }else{
-        puts("invalid input");
-    }
-    return 0;
+  if(strcmp(args,"r")==0){
+    isa_reg_display();
+  }else{
+    puts("invalid input");
+  }
+  return 0;
 }
 
 static int cmd_x(char *args){
-    char *stringLen = strtok(args," ");
-    char *exp= args+ strlen(stringLen) +1;
+  // 分开长度字符串和起始地址表达式字符串
+  char *stringLen = strtok(args," ");
+  char *exp= args+ strlen(stringLen) +1;
 
-    paddr_t expResult= strtol(exp,NULL,16);
-    printf("startAddr: 0x%08X\n", expResult);
-    uint8_t *realAddr= guest_to_host(expResult);
+  _Bool evalResult=0;
+  expr(exp,&evalResult);
+  assert(evalResult);
 
-    for(uint i=0;i< atoi(stringLen);++i){
-        if(i%8==0 && i!=0) printf("\n");
-        printf("%02X ",*(realAddr+i));
-    }
-    printf("\n");
-    return 0;
+  // 计算表达式字符串，并将其映射到宿主机内存地址中
+
+/*  paddr_t expResult= strtol(exp,NULL,16);
+  printf("startAddr: 0x%08X\n", expResult);
+  uint8_t *realAddr= guest_to_host(expResult);
+
+  // 读取指定长度的内存
+  for(uint i=0;i< strtol(stringLen,NULL,10);++i){
+    if(i%8==0 && i!=0) printf("\n");
+    printf("%02X ",*(realAddr+i));
+  }
+  printf("\n");*/
+  return 0;
 }
 
 static int cmd_help(char *args);
