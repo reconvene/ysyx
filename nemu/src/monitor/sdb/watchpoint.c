@@ -149,6 +149,7 @@ WP *monitor_wp(){
       changingWP=changingWP->next;
       continue;
     }
+    printf("%d\n",1919810);
     // 进行计算，然后与旧值对比
     changingWP->resultValue=expr(changingWP->exp,NULL);
     // 如果发生变化则返回监视点对象
