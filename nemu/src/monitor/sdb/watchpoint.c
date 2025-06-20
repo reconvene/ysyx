@@ -124,6 +124,8 @@ void free_wp_by_no(int targetNo){
 
 // 设置监视点表达式与姓名
 void set_wp(WP *inputWP,char *wpName,char *inputExp){
+  free(inputWP->wpName);
+  free(inputWP->exp);
   inputWP->wpName=wpName;
   inputWP->exp=inputExp;
 }
