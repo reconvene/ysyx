@@ -137,15 +137,14 @@ WP *monitor_wp(){
   }
   WP *changingWP=head;
   _Bool *calcuState=false;
-  printf("%d\n",114514);
 
   // 获取每个监视点的值，并与过去值比较
   while(changingWP!=NULL){
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
       printf("%d\n",114514);
+      printf("%d\n", expr(changingWP->exp,calcuState));
       changingWP->resultValue= expr(changingWP->exp,calcuState);
-      printf("%d\n",114514);
       printf("%d\n",changingWP->resultValue);
 //      Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
       changingWP->initialState=true;
