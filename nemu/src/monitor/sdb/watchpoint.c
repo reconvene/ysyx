@@ -138,6 +138,7 @@ WP *monitor_wp(){
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
       changingWP->resultValue= expr(changingWP->exp,calcuState);
+      printf("%d\n",(int)*calcuState);
       Assert(calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
       changingWP->initialState=true;
       wpValueGroup[changingWP->NO]=changingWP->resultValue;
