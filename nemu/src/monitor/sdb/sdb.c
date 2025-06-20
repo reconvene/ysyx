@@ -100,8 +100,9 @@ static int cmd_p(char *args){
 
   char *currentQuestion=NULL;
 //  char *currentAnswer=NULL;
+  size_t len = 0;
 
-  while (getline(&currentQuestion,NULL,questionsFile)!=-1){
+  while (getline(&currentQuestion,&len,questionsFile)!=-1){
     printf("%s\n",currentQuestion);
   }
   free(currentQuestion);
