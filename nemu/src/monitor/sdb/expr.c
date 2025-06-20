@@ -27,7 +27,6 @@ enum {
   TK_NOTYPE,
   TK_LEFT_SP,
   TK_RIGHT_SP,
-  TK_PTR,
   TK_NUM,
   TK_REG,
   TK_PLUS=261,
@@ -37,6 +36,7 @@ enum {
   TK_EQ,
   TK_NEQ,
   TK_AND,
+  TK_PTR,
 //  TK_MOD,
 //  TK_POW,
 
