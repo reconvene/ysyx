@@ -94,9 +94,9 @@ static int cmd_x(char *args){
 
 static int cmd_p(char *args){
   _Bool evalResult=false;
-//  expr(args,&evalResult);
+  expr(args,&evalResult);
 
-  // 读取文件
+/*  // 读取文件
   FILE *questionsFile= fopen("test/questions","r");
   FILE *answersFile= fopen("test/answers","r");
   //设置每行内容
@@ -110,7 +110,7 @@ static int cmd_p(char *args){
   }
 
   free(currentQuestion);
-  fclose(questionsFile);
+  fclose(questionsFile);*/
   return evalResult;
 }
 
