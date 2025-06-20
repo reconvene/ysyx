@@ -95,7 +95,7 @@ static int cmd_x(char *args){
 
 static int cmd_p(char *args){
   _Bool evalResult=false;
-  printf("result:%ul\n",expr(args,&evalResult));
+  printf("result:%u\n",expr(args,&evalResult));
 
 /*// 测试表达式求值
   // 读取文件
