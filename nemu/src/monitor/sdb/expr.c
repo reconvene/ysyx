@@ -152,24 +152,28 @@ static bool make_token(char *e) {
 
 // 检查表达式是否被括号包裹
 _Bool check_parentheses(uint8_t start, uint8_t end){
+  // 如果表达式没被括号包裹则进行计算
+  if(tokens[start].type!= TK_LEFT_SP || tokens[end].type!=TK_RIGHT_SP){
+    return false;
+  }
 
   // 声明括号数量
   uint8_t SPNum=0;
   // 遍历token
-  for(uint8_t i=start;i<=end;++i){
+  for(uint8_t i=start+1;i<=end-1;++i){
     // 遇到左括号+1，遇到右括号-1
     if(tokens[i].type==TK_LEFT_SP) SPNum+=1;
-    if(tokens[i].type==TK_RIGHT_SP) SPNum-=1;
+    if(tokens[i].type==TK_RIGHT_SP){
+      // 判断内外部括号是否有关联
+      if(SPNum==0) return false;
+      SPNum-=1;
+    }
+
   }
 
   // 内部括号不匹配
   if(SPNum!=0){
     panic("the brackets aren't matching");
-    return false;
-  }
-
-  // 如果表达式没被括号包裹则进行计算
-  if(tokens[start].type!= TK_LEFT_SP || tokens[end].type!=TK_RIGHT_SP){
     return false;
   }
 
