@@ -134,7 +134,7 @@ WP *monitor_wp(){
   _Bool *calcuState=false;
 
   // 获取每个监视点的值，并与过去值比较
-  while(changingWP!=NULL && changingWP->next!=NULL){
+  while(changingWP!=NULL){
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
       changingWP->resultValue= expr(changingWP->exp,calcuState);
@@ -150,6 +150,7 @@ WP *monitor_wp(){
     if(changingWP->resultValue!=wpValueGroup[changingWP->NO]){
       return changingWP;
     }
+    changingWP=changingWP->next;
   }
 
   return NULL;
