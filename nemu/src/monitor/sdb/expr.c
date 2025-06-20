@@ -66,8 +66,7 @@ static struct rule {
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\n",TK_ENTER},
-  {"\\/",TK_DIV},
-  {"\\$[0-9]+",TK_REG},
+  {"\\/",TK_DIV}
 //  {"\\%",TK_MOD},
 //  {"\\^",TK_POW}
 
