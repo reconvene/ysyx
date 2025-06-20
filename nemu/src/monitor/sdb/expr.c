@@ -56,7 +56,7 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"([0-9]+|0x[0-9]+)",TK_NUM},
   // 符合C语言变量首字母匹配规则的正则表达式
-  {"\\$[a-zA-Z_][a-zA-Z0-9]*", TK_REG},
+  {"\\$[a-zA-Z_$][a-zA-Z0-9]*", TK_REG},
   {"\\+", TK_PLUS},         // plus
   {"==", TK_EQ},        // equal
   {"!=",TK_NEQ},
