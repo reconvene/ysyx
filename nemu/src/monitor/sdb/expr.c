@@ -117,7 +117,7 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
-        if(rules[i].token_type!=TK_NOTYPE){
+        if(rules[i].token_type>TK_NOTYPE){
           // 声明Token变量
           Token currentToken;
           // 最多复制32个字符
