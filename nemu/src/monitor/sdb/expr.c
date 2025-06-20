@@ -299,6 +299,7 @@ word_t expr(char *e, bool *success) {
 
   // 计算拆分结果
   long int resultNum=eval(0,nr_token-1);
+  printf("%lu\n",resultNum);
 
   *success=true;
   return resultNum;
