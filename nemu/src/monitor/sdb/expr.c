@@ -287,9 +287,7 @@ word_t expr(char *e, bool *success) {
   // 计算拆分结果
   long int resultNum=eval(0,nr_token-1);
   printf("result:%ld\n",resultNum);
-
   assert(strtol(answer,NULL,10)==resultNum);
-  printf("PASSED!");
 
   return 1;
 }

@@ -107,6 +107,7 @@ static int cmd_p(char *args){
   while (getline(&currentTest,&testLen,testFile)!=-1){
     expr(currentTest,&evalResult);
   }
+  printf("PASSED!\n");
 
   free(currentTest);
   fclose(testFile);
