@@ -95,6 +95,10 @@ static int cmd_p(char *args){
 //  _Bool evalResult=false;
 //  expr(args,&evalResult);
   FILE *questionsFile= fopen("../../../test/questions","r");
+  if (questionsFile == NULL) {
+    perror("打开文件失败");
+    return 1;  // 或其他错误处理
+  }
   printf("%p\n",questionsFile);
 //  FILE *answersFile= fopen("../../../test/answers","r");
 
