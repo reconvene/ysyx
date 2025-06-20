@@ -221,7 +221,7 @@ long int eval(uint8_t start, uint8_t end){
     for(;i<=end;++i){
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
       // 判断运算符的优先级，在预算符相同优先级时选择最左边的
-      if(tokens[i].type>260 && SPNum==0j && judgeLevel(tokens[i].type)<tmpPriority) {
+      if(tokens[i].type>260 && SPNum==0 && judgeLevel(tokens[i].type)<tmpPriority) {
           opPosition=i;
           tmpPriority=judgeLevel(tokens[i].type);
       }
