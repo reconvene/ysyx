@@ -92,9 +92,20 @@ static int cmd_x(char *args){
 }
 
 static int cmd_p(char *args){
-  _Bool evalResult=false;
-  expr(args,&evalResult);
-  return evalResult;
+//  _Bool evalResult=false;
+//  expr(args,&evalResult);
+  FILE *questionsFile= fopen("../../../test/questions","r");
+//  FILE *answersFile= fopen("../../../test/answers","r");
+
+  char *currentQuestion=NULL;
+//  char *currentAnswer=NULL;
+
+  while (getline(&currentQuestion,NULL,questionsFile)!=-1){
+    printf("%s\n",currentQuestion);
+  }
+  free(currentQuestion);
+//  return evalResult;
+  return 0;
 }
 
 static int cmd_help(char *args);

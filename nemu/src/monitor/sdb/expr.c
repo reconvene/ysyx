@@ -120,7 +120,7 @@ static bool make_token(char *e) {
           Token currentToken;
           // 最多复制32个字符
           strncpy(currentToken.str,substr_start,substr_len>32?32:substr_len);
-          // 将字符串末尾加上/0
+          // 将字符串末尾加上结束符
           currentToken.str[(substr_len)-1>=31?31:substr_len]='\0';
 
           // 标定当前token类别
