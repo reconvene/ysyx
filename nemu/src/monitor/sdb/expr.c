@@ -210,7 +210,8 @@ long int eval(uint8_t start, uint8_t end){
   } else if(end==start){
     switch (tokens[start].type) {
       case TK_NUM:
-        return strtol(tokens[start].str,NULL,10);
+        printf("%lu\n",strtol(tokens[start].str,NULL,0));
+        return strtol(tokens[start].str,NULL,0);
       case TK_REG:
         _Bool resultState=false;
         word_t result=isa_reg_str2val(tokens[start].str+1,&resultState);
