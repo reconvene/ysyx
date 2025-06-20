@@ -22,16 +22,20 @@
 #include <math.h>
 
 enum {
-  TK_ENTER=255,
+  TK_ENTER,
   TK_NOTYPE,
-  TK_EQ,
   TK_LEFT_SP,
   TK_RIGHT_SP,
   TK_NUM,
-  TK_PLUS,
+  TK_REG,
+  TK_PTR,
+  TK_PLUS=261,
   TK_SUB,
   TK_MUL,
   TK_DIV,
+  TK_EQ,
+  TK_NEQ,
+  TK_AND,
 //  TK_MOD,
 //  TK_POW,
 
@@ -49,15 +53,21 @@ static struct rule {
    */
 
   {" +", TK_NOTYPE},    // spaces
-  {"([0-9]+)",TK_NUM},
+  {"([0-9]+|0x[0-9]+)",TK_NUM},
+  // 符合C语言变量首字母匹配规则的正则表达式
+  {"\\$[a-zA-Z_][a-zA-Z0-9]*", TK_REG},
+  {"\\*[a-zA-Z_][a-zA-Z0-9]*", TK_PTR},
   {"\\+", TK_PLUS},         // plus
   {"==", TK_EQ},        // equal
+  {"!=",TK_NEQ},
+  {"&&",TK_AND},
   {"\\*", TK_MUL},
   {"\\-",TK_SUB},
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\n",TK_ENTER},
   {"\\/",TK_DIV},
+  {"\\$[0-9]+",TK_REG},
 //  {"\\%",TK_MOD},
 //  {"\\^",TK_POW}
 
@@ -201,10 +211,19 @@ long int eval(uint8_t start, uint8_t end){
   if(start>end){
     panic("the number of len is invalid");
 
-  // 如果开头等于结尾，则必定为数字
+  // 如果开头等于结尾，则必定为值，根据不同类型进行相应处理
   } else if(end==start){
-    assert(tokens[start].type==TK_NUM);
-    return strtol(tokens[start].str,NULL,0);
+    switch (tokens[start].type) {
+      case TK_NUM:
+        return strtol(tokens[start].str,NULL,0);
+      case TK_REG:
+        _Bool resultState=false;
+        word_t result=isa_reg_str2val(tokens[start].str+1,&resultState);
+        if(!resultState) panic("Failed to get register value");
+        return result;
+      case TK_PTR:
+      default:panic("the format of number isn't existing");
+    }
 
   // 判断一下俩边是否有被括号包裹且格式是否正确，如果格式不正确则直接结束程序
   }else if(check_parentheses(start,end)){
@@ -250,6 +269,12 @@ long int eval(uint8_t start, uint8_t end){
         return leftValue*rightValue;
       case TK_DIV:
         return leftValue/rightValue;
+      case TK_EQ:
+        return leftValue==rightValue;
+      case TK_NEQ:
+        return leftValue!=rightValue;
+      case TK_AND:
+        return leftValue&&rightValue;
 //      case TK_POW:
 //        return (long int)pow(leftValue,rightValue);
 //      case TK_MOD:
@@ -260,7 +285,7 @@ long int eval(uint8_t start, uint8_t end){
   }
 }
 
-/*// 计算表达式
+// 计算表达式
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
@@ -272,9 +297,9 @@ word_t expr(char *e, bool *success) {
   printf("result:%ld\n",resultNum);
 
   return resultNum;
-}*/
+}
 
-// 测试表达式求值
+/*// 测试表达式求值
 word_t expr(char *e, bool *success) {
   char *answer = strtok(e," ");
   char *question= e+ strlen(answer) +1;
@@ -290,4 +315,4 @@ word_t expr(char *e, bool *success) {
   assert(strtol(answer,NULL,10)==resultNum);
 
   return 1;
-}
+}*/

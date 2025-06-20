@@ -95,9 +95,9 @@ static int cmd_x(char *args){
 
 static int cmd_p(char *args){
   _Bool evalResult=false;
-//  expr(args,&evalResult);
+  expr(args,&evalResult);
 
-// 测试表达式求值
+/*// 测试表达式求值
   // 读取文件
   FILE *testFile= fopen("test/calculatorTestFile","r");
   //设置每行内容
@@ -110,7 +110,8 @@ static int cmd_p(char *args){
   printf("PASSED!\n");
 
   free(currentTest);
-  fclose(testFile);
+  fclose(testFile);*/
+
   return evalResult;
 }
 
