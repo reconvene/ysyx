@@ -237,8 +237,8 @@ long int eval(uint8_t start, uint8_t end){
     long int leftValue= eval(start,opPosition-1);
     long int rightValue= eval(opPosition+1,end);
 //    printf("start:%d end:%d\n",start,end);
-//    printf("leftValue:%d\n",leftValue);
-//    printf("rightValue:%d\n",rightValue);
+    printf("leftValue:%ld\n",leftValue);
+    printf("rightValue:%ld\n",rightValue);
 
     // 进行相应计算
     switch (tokens[opPosition].type) {
