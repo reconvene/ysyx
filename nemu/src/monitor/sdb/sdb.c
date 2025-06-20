@@ -95,6 +95,7 @@ static int cmd_p(char *args){
 //  _Bool evalResult=false;
 //  expr(args,&evalResult);
   FILE *questionsFile= fopen("../../../test/questions","r");
+  printf("%p\n",questionsFile);
 //  FILE *answersFile= fopen("../../../test/answers","r");
 
   char *currentQuestion=NULL;
