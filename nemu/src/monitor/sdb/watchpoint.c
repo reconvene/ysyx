@@ -142,14 +142,11 @@ WP *monitor_wp(){
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
       changingWP->resultValue = expr(changingWP->exp,NULL);
-      printf("%d\n",changingWP->resultValue);
       changingWP->initialState=true;
       wpValueGroup[changingWP->NO]=changingWP->resultValue;
-      printf("%p\n",changingWP->next);
       changingWP=changingWP->next;
       continue;
     }
-    printf("%d\n",1919810);
     // 进行计算，然后与旧值对比
     changingWP->resultValue=expr(changingWP->exp,NULL);
     // 如果发生变化则返回监视点对象
