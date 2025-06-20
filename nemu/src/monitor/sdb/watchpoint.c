@@ -138,6 +138,7 @@ WP *monitor_wp(){
 
   // 获取每个监视点的值，并与过去值比较
   while(changingWP!=NULL){
+    printf("%d\n",changingWP->NO);
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
       changingWP->resultValue= expr(changingWP->exp,calcuState);

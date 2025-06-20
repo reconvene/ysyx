@@ -46,9 +46,10 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if(!changedWP){
     nemu_state.state=NEMU_STOP;
     printf("the value of watchpoints has changed\n");
+    // 释放变化节点
+    free(changedWP);
   }
-  // 释放变化节点
-  free(changedWP);
+
 #endif
 }
 
