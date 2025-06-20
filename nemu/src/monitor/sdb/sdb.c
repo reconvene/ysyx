@@ -63,6 +63,8 @@ static int cmd_si(char *args){
 static int cmd_info(char *args){
   if(strcmp(args,"r")==0){
     isa_reg_display();
+  }else if(strcmp(args,"w")){
+    list_wp();
   }else{
     puts("invalid input");
   }
@@ -115,6 +117,25 @@ static int cmd_p(char *args){
   return evalResult;
 }
 
+static int cmd_w(char *args){
+  // 创建监视点
+  WP *currentWP=new_wp();
+  Assert(currentWP!=NULL,"watchpoint generation failed");
+
+  // 定义监视点姓名和表达式
+  char *wpName = strtok(args," ");
+  char *exp= args+ strlen(wpName) +1;
+  set_wp(currentWP,wpName,exp);
+
+  return 0;
+}
+
+int cmd_d(char *args){
+  int wpNo= strtol(args,NULL,10);
+  free_wp_by_no(wpNo);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -128,7 +149,9 @@ static struct {
   {"si","Execute the program for N steps",cmd_si},
   {"info","View the registers using a specified method",cmd_info},
   {"x","View memory using an expression and a step size",cmd_x},
-  {"p", "Calculate the expression",cmd_p}
+  {"p", "Calculate the expression",cmd_p},
+  {"w", "Monitor the expression",cmd_w},
+  {"d", "Delete the watchpoint",cmd_d},
 
 
   /* TODO: Add more commands */

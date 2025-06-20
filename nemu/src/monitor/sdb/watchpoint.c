@@ -20,19 +20,28 @@
 typedef struct watchpoint {
   int NO;
   struct watchpoint *next;
-
+  char *wpName;
+  char *exp;
+  word_t resultValue;
+  _Bool initialState;
   /* TODO: Add more members if necessary */
 
 } WP;
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
+// 存储先前的值
+static word_t wpValueGroup[NR_WP]={};
 
 void init_wp_pool() {
   int i;
   for (i = 0; i < NR_WP; i ++) {
     wp_pool[i].NO = i;
     wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
+    wp_pool[i].wpName=NULL;
+    wp_pool[i].exp=NULL;
+    wp_pool[i].resultValue=0;
+    wp_pool[i].initialState=false;
   }
 
   head = NULL;
@@ -40,4 +49,120 @@ void init_wp_pool() {
 }
 
 /* TODO: Implement the functionality of watchpoint */
+// 获取空闲监视点
+WP *new_wp(){
+  if(free_ == NULL){
+    assert(0);
+  }
+  WP *tmpWP=free_;
+  free_=free_->next;
+  tmpWP->next=head;
+  head=tmpWP;
+
+  return tmpWP;
+}
+
+// 返还空闲监视点
+void free_wp(WP *inputWP){
+  // head为空
+  if(head==NULL){
+    return;
+  }
+
+  // 只有一个节点
+  if (head->NO==inputWP->NO && !head->next){
+    inputWP->next=free_;
+    inputWP->initialState=false;
+    free_=inputWP;
+    head=NULL;
+    return;
+  }
+
+  // 循环遍历剩余节点
+  WP *tmpWP=head;
+  while (tmpWP->next!=NULL){
+    if(tmpWP->next->NO==inputWP->NO){
+      tmpWP->next=inputWP->next;
+      inputWP->next=free_;
+      inputWP->initialState=false;
+      free_=inputWP;
+      return;
+    }
+    tmpWP=tmpWP->next;
+  }
+}
+
+// 通过编号删除监视点
+void free_wp_by_no(int targetNo){
+  if(head==NULL){
+    return;
+  }
+
+  WP *tmpWP=head;
+  if(head->NO==targetNo && head->next==NULL){
+    tmpWP->next=free_;
+    tmpWP->initialState=false;
+    free_=tmpWP;
+    head=NULL;
+    return;
+  }
+
+  tmpWP=tmpWP->next;
+  WP *prevWP=head;
+  while (tmpWP!=NULL){
+    if(tmpWP->NO==targetNo){
+      prevWP->next=tmpWP->next;
+      tmpWP->next=free_;
+      tmpWP->initialState=false;
+      free_=tmpWP;
+      return;
+    }
+    tmpWP=tmpWP->next;
+    prevWP=prevWP->next;
+  }
+}
+
+// 设置监视点表达式与姓名
+void set_wp(WP *inputWP,char *wpName,char *inputExp){
+  inputWP->wpName=wpName;
+  inputWP->exp=inputExp;
+}
+
+// 监控监视点的值是否发生变化
+WP *monitor_wp(){
+  WP *changingWP=head;
+  _Bool *calcuState=false;
+
+  // 获取每个监视点的值，并与过去值比较
+  while(changingWP!=NULL && changingWP->next!=NULL){
+    // 如果未初始化，则初始化
+    if(!changingWP->initialState){
+      changingWP->resultValue= expr(changingWP->exp,calcuState);
+      Assert(calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
+      changingWP->initialState=true;
+      wpValueGroup[changingWP->NO]=changingWP->resultValue;
+      continue;
+    }
+    // 进行计算，然后与旧值对比
+    changingWP->resultValue=expr(changingWP->exp,calcuState);
+    Assert(calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
+    // 如果发生变化则返回监视点对象
+    if(changingWP->resultValue!=wpValueGroup[changingWP->NO]){
+      return changingWP;
+    }
+  }
+
+  return NULL;
+}
+
+// 列出节点
+void list_wp(){
+  WP *changingWP=head;
+
+  printf("Num\tName\tinitialState\texp\tvalue\n");
+  while(changingWP!=NULL){
+    printf("%d\t%s\t%d\t%s\t%d\n",changingWP->NO,changingWP->wpName,changingWP->initialState,changingWP->exp,changingWP->resultValue);
+  }
+  printf("\n");
+}
 
