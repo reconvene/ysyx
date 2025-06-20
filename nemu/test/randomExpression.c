@@ -19,7 +19,7 @@ void gen(char inputChar, char *expBuffer) {
 
 // 生成随机操作符
 void gen_rand_op(char *expBuffer) {
-  char opGroup[] = {'+', '-', '*', '/', '%'};
+  char opGroup[] = {'+', '-', '*'};
   sprintf(expBuffer + currentLocation, "%c", opGroup[randInRange(0, 6)]);
   currentLocation += 1;
 }

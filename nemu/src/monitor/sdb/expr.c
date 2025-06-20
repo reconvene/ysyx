@@ -31,9 +31,9 @@ enum {
   TK_PLUS,
   TK_SUB,
   TK_MUL,
-  TK_DIV,
-  TK_MOD,
-  TK_POW,
+//  TK_DIV,
+//  TK_MOD,
+//  TK_POW,
 
   /* TODO: Add more token types */
 
@@ -54,12 +54,12 @@ static struct rule {
   {"==", TK_EQ},        // equal
   {"\\*", TK_MUL},
   {"\\-",TK_SUB},
-  {"\\/",TK_DIV},
-  {"\\%",TK_MOD},
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
-  {"\\^",TK_POW},
-  {"\n",TK_ENTER}
+  {"\n",TK_ENTER},
+//  {"\\/",TK_DIV},
+//  {"\\%",TK_MOD},
+//  {"\\^",TK_POW}
 
 
 };
@@ -188,12 +188,7 @@ uint8_t judgeLevel(int inputValue){
       return 1;
 
     case TK_MUL:
-    case TK_DIV:
-    case TK_MOD:
       return 2;
-
-    case TK_POW:
-      return 3;
 
     default:
       return 0;
@@ -251,12 +246,12 @@ long int eval(uint8_t start, uint8_t end){
         return leftValue-rightValue;
       case TK_MUL:
         return leftValue*rightValue;
-      case TK_DIV:
-        return leftValue/rightValue;
-      case TK_POW:
-        return (long int)pow(leftValue,rightValue);
-      case TK_MOD:
-        return leftValue%rightValue;
+//      case TK_DIV:
+//        return leftValue/rightValue;
+//      case TK_POW:
+//        return (long int)pow(leftValue,rightValue);
+//      case TK_MOD:
+//        return leftValue%rightValue;
       default:
         panic("the expression has something wrong");
     }
