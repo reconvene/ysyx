@@ -210,6 +210,7 @@ long int eval(uint8_t start, uint8_t end){
   } else if(end==start){
     switch (tokens[start].type) {
       case TK_NUM:
+        printf("%s\n",tokens[start].str);
         return strtol(tokens[start].str,NULL,0);
       case TK_REG:
         _Bool resultState=false;
