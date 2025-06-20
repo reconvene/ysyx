@@ -141,6 +141,7 @@ WP *monitor_wp(){
       Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
       changingWP->initialState=true;
       wpValueGroup[changingWP->NO]=changingWP->resultValue;
+      changingWP=changingWP->next;
       continue;
     }
     // 进行计算，然后与旧值对比
