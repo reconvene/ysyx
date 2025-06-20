@@ -299,7 +299,7 @@ word_t expr(char *e, bool *success) {
   long int resultNum=eval(0,nr_token-1);
   printf("result:%ld\n",resultNum);
 
-  return resultNum;
+  return 1;
 }
 
 /*// 测试表达式求值
