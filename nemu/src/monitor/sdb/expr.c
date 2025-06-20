@@ -107,8 +107,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+//        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+//            i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -226,15 +226,15 @@ long int eval(uint8_t start, uint8_t end){
       // 判断运算符的优先级，在预算符相同优先级时选择最左边的
       if(tokens[i].type>260 && tokens[i].type!=TK_NUM && SPNum==0 && judgeLevel(tokens[i].type)<tmpPriority) {
           opPosition=i;
-          printf("priority:%d\n",judgeLevel(tokens[i].type));
-          printf("type:%d\n",tokens[i].type);
+//          printf("priority:%d\n",judgeLevel(tokens[i].type));
+//          printf("type:%d\n",tokens[i].type);
           tmpPriority=judgeLevel(tokens[i].type);
       }
     }
 
     // 对俩边表达式进行求值
-    printf("start:%d end:%d\n",start,end);
-    printf("%d  %s\n",opPosition,tokens[opPosition].str);
+//    printf("start:%d end:%d\n",start,end);
+//    printf("%d  %s\n",opPosition,tokens[opPosition].str);
     long int leftValue= eval(start,opPosition-1);
     long int rightValue= eval(opPosition+1,end);
 //    printf("leftValue:%ld\n",leftValue);
