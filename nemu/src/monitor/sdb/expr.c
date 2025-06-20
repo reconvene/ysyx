@@ -297,9 +297,9 @@ word_t expr(char *e, bool *success) {
 
   // 计算拆分结果
   long int resultNum=eval(0,nr_token-1);
-  printf("result:%ld\n",resultNum);
 
-  return 1;
+  *success=true;
+  return resultNum;
 }
 
 /*// 测试表达式求值
