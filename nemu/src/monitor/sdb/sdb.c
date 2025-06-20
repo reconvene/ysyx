@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <unistd.h>
 #include "sdb.h"
 #include "memory/paddr.h"
 
@@ -94,12 +95,20 @@ static int cmd_x(char *args){
 static int cmd_p(char *args){
 //  _Bool evalResult=false;
 //  expr(args,&evalResult);
+  char cwd[1000];  // PATH_MAX 是系统定义的路径最大长度
+
+  if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    printf("当前工作目录是: %s\n", cwd);
+  } else {
+    perror("getcwd 失败");
+    return 1;
+  }
   FILE *questionsFile= fopen("../test/questions","r");
   if (questionsFile == NULL) {
     perror("打开文件失败");
     return 1;  // 或其他错误处理
   }
-  printf("%p\n",questionsFile);
+//  printf("%s\n",);
 //  FILE *answersFile= fopen("../../../test/answers","r");
 
   char *currentQuestion=NULL;
