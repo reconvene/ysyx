@@ -20,15 +20,16 @@
  */
 #include <regex.h>
 #include <math.h>
+#include "memory/paddr.h"
 
 enum {
   TK_ENTER,
   TK_NOTYPE,
   TK_LEFT_SP,
   TK_RIGHT_SP,
+  TK_PTR,
   TK_NUM,
   TK_REG,
-  TK_PTR,
   TK_PLUS=261,
   TK_SUB,
   TK_MUL,
@@ -56,7 +57,6 @@ static struct rule {
   {"([0-9]+|0x[0-9]+)",TK_NUM},
   // 符合C语言变量首字母匹配规则的正则表达式
   {"\\$[a-zA-Z_][a-zA-Z0-9]*", TK_REG},
-  {"\\*[a-zA-Z_][a-zA-Z0-9]*", TK_PTR},
   {"\\+", TK_PLUS},         // plus
   {"==", TK_EQ},        // equal
   {"!=",TK_NEQ},
@@ -195,10 +195,10 @@ uint8_t judgeLevel(int inputValue){
     case TK_PLUS:
     case TK_SUB:
       return 1;
-
     case TK_MUL:
       return 2;
-
+    case TK_PTR:
+      return 3;
     default:
       return 10;
   }
@@ -220,7 +220,6 @@ long int eval(uint8_t start, uint8_t end){
         word_t result=isa_reg_str2val(tokens[start].str+1,&resultState);
         if(!resultState) panic("Failed to get register value");
         return result;
-      case TK_PTR:
       default:panic("the format of number isn't existing");
     }
 
@@ -231,9 +230,9 @@ long int eval(uint8_t start, uint8_t end){
   } else{
     uint8_t tmpPriority=10;
     uint8_t opPosition=0;
-
     uint8_t SPNum=0;
     uint8_t i=start;
+
     // 遍历找到运算符位置
     for(;i<=end;++i){
       // 遇到左括号+1，遇到右括号-1
@@ -250,14 +249,17 @@ long int eval(uint8_t start, uint8_t end){
       }
     }
 
-    // 对俩边表达式进行求值
-//    printf("start:%d end:%d\n",start,end);
-//    printf("%d  %s\n",opPosition,tokens[opPosition].str);
-    long int leftValue= eval(start,opPosition-1);
+    // 对右边表达式进行求值;
     long int rightValue= eval(opPosition+1,end);
-//    printf("leftValue:%ld\n",leftValue);
-//    printf("rightValue:%ld\n",rightValue);
+    // 如果该符号为解析符，则直接返回解析后的值
+    switch (tokens[opPosition].type) {
+      case TK_PTR:
+        return *guest_to_host(rightValue);
+      default:break;
+    }
 
+    // 对左边表达式进行求值
+    long int leftValue= eval(start,opPosition-1);
     // 进行相应计算
     switch (tokens[opPosition].type) {
       case TK_PLUS:
@@ -289,6 +291,12 @@ word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
+  }
+
+  for (uint8_t i = 0; i < nr_token; i ++) {
+    if (tokens[i].type == TK_MUL && (i == 0 || tokens[i - 1].type >260) ) {
+      tokens[i].type = TK_PTR;
+    }
   }
 
   // 计算拆分结果
