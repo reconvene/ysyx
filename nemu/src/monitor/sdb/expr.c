@@ -226,12 +226,12 @@ long int eval(uint8_t start, uint8_t end){
       // 判断运算符的优先级，在预算符相同优先级时选择最左边的
       if(tokens[i].type>=TK_PLUS && SPNum==0 && judgeLevel(tokens[i].type)<tmpPriority) {
           opPosition=i;
+          printf("%d%s\n",opPosition,tokens[opPosition].str);
           tmpPriority=judgeLevel(tokens[i].type);
       }
     }
 
     // 对俩边表达式进行求值
-    printf("%d%s\n",opPosition,tokens[opPosition].str);
     long int leftValue= eval(start,opPosition-1);
     long int rightValue= eval(opPosition+1,end);
 //    printf("start:%d end:%d\n",start,end);
