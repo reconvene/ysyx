@@ -59,7 +59,7 @@ static struct rule {
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\\^",TK_POW},
-  {"\\n",TK_ENTER}
+  {"\n",TK_ENTER}
 
 
 };
