@@ -233,12 +233,12 @@ long int eval(uint8_t start, uint8_t end){
     }
 
     // 对俩边表达式进行求值
-      printf("%d  %s\n",opPosition,tokens[opPosition].str);
+    printf("start:%d end:%d\n",start,end);
+    printf("%d  %s\n",opPosition,tokens[opPosition].str);
     long int leftValue= eval(start,opPosition-1);
     long int rightValue= eval(opPosition+1,end);
-    printf("start:%d end:%d\n",start,end);
-    printf("leftValue:%ld\n",leftValue);
-    printf("rightValue:%ld\n",rightValue);
+//    printf("leftValue:%ld\n",leftValue);
+//    printf("rightValue:%ld\n",rightValue);
 
     // 进行相应计算
     switch (tokens[opPosition].type) {
