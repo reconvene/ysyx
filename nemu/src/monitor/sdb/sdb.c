@@ -102,9 +102,10 @@ static int cmd_p(char *args){
   //设置每行内容
   char *currentQuestion=NULL;
   char *currentAnswer=NULL;
+  size_t len=0;
   // 按行读取
-  while (getline(&currentQuestion,NULL,questionsFile)!=-1
-  && getline(&currentAnswer,NULL,answersFile)!=-1 ){
+  while (getline(&currentQuestion,&len,questionsFile)!=-1
+  && getline(&currentAnswer,&len,answersFile)!=-1 ){
     expr(currentQuestion,&evalResult);
   }
 
