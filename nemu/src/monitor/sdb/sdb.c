@@ -126,7 +126,7 @@ static int cmd_w(char *args){
   char *wpName = strtok(args," ");
   char *exp= args+ strlen(wpName) +1;
   printf("%s %s\n",wpName,exp);
-  set_wp(currentWP,wpName,exp);
+  set_wp(currentWP, strdup(wpName), strdup(exp));
 
   return 0;
 }
