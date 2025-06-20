@@ -27,7 +27,7 @@ enum {
   TK_EQ,
   TK_LEFT_SP,
   TK_RIGHT_SP,
-  TK_NUM,
+  TK_NUM=261,
   TK_PLUS,
   TK_SUB,
   TK_MUL,
