@@ -125,12 +125,12 @@ static int cmd_w(char *args){
   // 定义监视点姓名和表达式
   char *wpName = strtok(args," ");
   char *exp= args+ strlen(wpName) +1;
-  printf("%s %s\n",wpName,exp);
   set_wp(currentWP, strdup(wpName), strdup(exp));
 
   return 0;
 }
 
+// 删除监视点
 int cmd_d(char *args){
   int wpNo= strtol(args,NULL,10);
   free_wp_by_no(wpNo);
