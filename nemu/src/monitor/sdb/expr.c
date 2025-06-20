@@ -224,7 +224,7 @@ long int eval(uint8_t start, uint8_t end){
 //      printf("%d  %s\n",i,tokens[i].str);
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
       // 判断运算符的优先级，在预算符相同优先级时选择最左边的
-      if(tokens[i].type>260 && tokens[i].type!=TK_NUM && SPNum==0 && judgeLevel(tokens[i].type)<tmpPriority) {
+      if(tokens[i].type>260 && tokens[i].type!=TK_NUM && SPNum==0 && judgeLevel(tokens[i].type)<=tmpPriority) {
           opPosition=i;
 //          printf("priority:%d\n",judgeLevel(tokens[i].type));
 //          printf("type:%d\n",tokens[i].type);
