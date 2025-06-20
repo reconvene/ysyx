@@ -145,6 +145,7 @@ WP *monitor_wp(){
       printf("%d\n",changingWP->resultValue);
       changingWP->initialState=true;
       wpValueGroup[changingWP->NO]=changingWP->resultValue;
+      printf("%p\n",changingWP->next);
       changingWP=changingWP->next;
       continue;
     }
