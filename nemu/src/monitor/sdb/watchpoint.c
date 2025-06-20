@@ -108,7 +108,7 @@ void free_wp_by_no(int targetNo){
     return;
   }
 
-  WP *prevWP=head;
+  WP *prevWP=NULL;
   while (tmpWP!=NULL){
     if(tmpWP->NO==targetNo){
       prevWP->next=tmpWP->next;
@@ -117,8 +117,8 @@ void free_wp_by_no(int targetNo){
       free_=tmpWP;
       return;
     }
+    prevWP=tmpWP;
     tmpWP=tmpWP->next;
-    prevWP=prevWP->next;
   }
 }
 
