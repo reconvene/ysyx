@@ -289,7 +289,7 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  printf("%d\n",nr_token);
+  printf("nr_token:%d\n",nr_token);
   for (uint8_t i = 0; i < nr_token; i ++) {
     if (tokens[i].type == TK_MUL && (i == 0 || tokens[i - 1].type >260) ) {
       tokens[i].type = TK_PTR;
