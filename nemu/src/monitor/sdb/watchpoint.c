@@ -162,6 +162,7 @@ void list_wp(){
   printf("Num\tName\tinitialState\texp\tvalue\n");
   while(changingWP!=NULL){
     printf("%d\t%s\t%d\t%s\t%d\n",changingWP->NO,changingWP->wpName,changingWP->initialState,changingWP->exp,changingWP->resultValue);
+    changingWP=changingWP->next;
   }
   printf("\n");
 }
