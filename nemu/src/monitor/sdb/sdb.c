@@ -97,20 +97,17 @@ static int cmd_p(char *args){
 //  expr(args,&evalResult);
 
   // 读取文件
-  FILE *questionsFile= fopen("test/questions","r");
-  FILE *answersFile= fopen("test/answers","r");
+  FILE *testFile= fopen("test/calculatorTestFile","r");
   //设置每行内容
-  char *currentQuestion=NULL;
-  char *currentAnswer=NULL;
-  size_t len=0;
+  char *currentTest=NULL;
+  size_t testLen=0;
   // 按行读取
-  while (getline(&currentQuestion,&len,questionsFile)!=-1
-  && getline(&currentAnswer,&len,answersFile)!=-1 ){
-    expr(currentQuestion,&evalResult);
+  while (getline(&currentTest,&testLen,testFile)!=-1){
+    expr(currentTest,&evalResult);
   }
 
-  free(currentQuestion);
-  fclose(questionsFile);
+  free(currentTest);
+  fclose(testFile);
   return evalResult;
 }
 
