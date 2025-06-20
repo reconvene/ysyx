@@ -226,7 +226,8 @@ long int eval(uint8_t start, uint8_t end){
       // 判断运算符的优先级，在预算符相同优先级时选择最左边的
       if(tokens[i].type>260 && SPNum==0 && judgeLevel(tokens[i].type)<tmpPriority) {
           opPosition=i;
-        printf("priority:%d\n",judgeLevel(tokens[i].type));
+          printf("priority:%d\n",judgeLevel(tokens[i].type));
+          printf("type:%d\n",tokens[i].type);
           tmpPriority=judgeLevel(tokens[i].type);
       }
     }
