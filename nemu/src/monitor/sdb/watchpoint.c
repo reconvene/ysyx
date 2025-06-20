@@ -130,6 +130,9 @@ void set_wp(WP *inputWP,char *wpName,char *inputExp){
 
 // 监控监视点的值是否发生变化
 WP *monitor_wp(){
+  if(!head){
+    return NULL;
+  }
   WP *changingWP=head;
   _Bool *calcuState=false;
 
@@ -138,7 +141,7 @@ WP *monitor_wp(){
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
       changingWP->resultValue= expr(changingWP->exp,calcuState);
-      Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
+//      Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
       changingWP->initialState=true;
       wpValueGroup[changingWP->NO]=changingWP->resultValue;
       changingWP=changingWP->next;
@@ -146,7 +149,7 @@ WP *monitor_wp(){
     }
     // 进行计算，然后与旧值对比
     changingWP->resultValue=expr(changingWP->exp,calcuState);
-    Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
+//    Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
     // 如果发生变化则返回监视点对象
     if(changingWP->resultValue!=wpValueGroup[changingWP->NO]){
       return changingWP;
