@@ -135,6 +135,7 @@ WP *monitor_wp(){
   }
   WP *changingWP=head;
   _Bool *calcuState=false;
+  printf("%d\n",114514);
 
   // 获取每个监视点的值，并与过去值比较
   while(changingWP!=NULL){
