@@ -22,7 +22,8 @@
 #include <math.h>
 
 enum {
-  TK_NOTYPE = 256,
+  TK_ENTER=255,
+  TK_NOTYPE,
   TK_EQ,
   TK_LEFT_SP,
   TK_RIGHT_SP,
@@ -58,6 +59,7 @@ static struct rule {
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\\^",TK_POW},
+  {"\\n",TK_ENTER}
 
 
 };
