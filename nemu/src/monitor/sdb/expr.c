@@ -301,7 +301,7 @@ word_t expr(char *e, bool *success) {
   long int resultNum=eval(0,nr_token-1);
 //  printf("%lu\n",resultNum);
 
-  *success=true;
+//  *success=true;
   return resultNum;
 }
 
