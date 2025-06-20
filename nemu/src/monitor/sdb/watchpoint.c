@@ -136,25 +136,20 @@ WP *monitor_wp(){
     return NULL;
   }
   WP *changingWP=head;
-  _Bool *calcuState=false;
 
   // 获取每个监视点的值，并与过去值比较
   while(changingWP!=NULL){
     // 如果未初始化，则初始化
     if(!changingWP->initialState){
-      printf("%d\n",114514);
-      printf("%d\n", expr(changingWP->exp,NULL));
-      changingWP->resultValue = expr(changingWP->exp,calcuState);
+      changingWP->resultValue = expr(changingWP->exp,NULL);
       printf("%d\n",changingWP->resultValue);
-//      Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
       changingWP->initialState=true;
       wpValueGroup[changingWP->NO]=changingWP->resultValue;
       changingWP=changingWP->next;
       continue;
     }
     // 进行计算，然后与旧值对比
-    changingWP->resultValue=expr(changingWP->exp,calcuState);
-//    Assert(!calcuState,"the watchpoint named %s has some calculation errors", changingWP->wpName);
+    changingWP->resultValue=expr(changingWP->exp,NULL);
     // 如果发生变化则返回监视点对象
     if(changingWP->resultValue!=wpValueGroup[changingWP->NO]){
       return changingWP;

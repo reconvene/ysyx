@@ -210,7 +210,6 @@ long int eval(uint8_t start, uint8_t end){
   } else if(end==start){
     switch (tokens[start].type) {
       case TK_NUM:
-        printf("%lu\n",strtol(tokens[start].str,NULL,0));
         return strtol(tokens[start].str,NULL,0);
       case TK_REG:
         _Bool resultState=false;
@@ -299,9 +298,8 @@ word_t expr(char *e, bool *success) {
 
   // 计算拆分结果
   long int resultNum=eval(0,nr_token-1);
-//  printf("%lu\n",resultNum);
 
-//  *success=true;
+  if(success) *success=true;
   return resultNum;
 }
 
