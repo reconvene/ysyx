@@ -94,7 +94,7 @@ static int cmd_x(char *args){
 static int cmd_p(char *args){
 //  _Bool evalResult=false;
 //  expr(args,&evalResult);
-  FILE *questionsFile= fopen("../../../test/questions","r");
+  FILE *questionsFile= fopen("../test/questions","r");
   if (questionsFile == NULL) {
     perror("打开文件失败");
     return 1;  // 或其他错误处理
@@ -110,6 +110,7 @@ static int cmd_p(char *args){
     printf("%s\n",currentQuestion);
   }
   free(currentQuestion);
+  fclose(questionsFile);
 //  return evalResult;
   return 0;
 }
