@@ -191,7 +191,7 @@ uint8_t judgeLevel(int inputValue){
       return 2;
 
     default:
-      return 0;
+      return 10;
   }
 }
 
