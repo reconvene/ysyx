@@ -116,8 +116,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+//        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+//            i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -289,7 +289,6 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  printf("nr_token:%d\n",nr_token);
   for (uint8_t i = 0; i < nr_token; i ++) {
     if (tokens[i].type == TK_MUL && (i == 0 || tokens[i - 1].type >260) ) {
       tokens[i].type = TK_PTR;
