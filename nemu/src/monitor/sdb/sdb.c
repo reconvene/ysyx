@@ -93,23 +93,24 @@ static int cmd_x(char *args){
 }
 
 static int cmd_p(char *args){
-//  _Bool evalResult=false;
+  _Bool evalResult=false;
 //  expr(args,&evalResult);
 
+  // 读取文件
   FILE *questionsFile= fopen("test/questions","r");
-//  FILE *answersFile= fopen("test/answers","r");
-
+  FILE *answersFile= fopen("test/answers","r");
+  //设置每行内容
   char *currentQuestion=NULL;
-//  char *currentAnswer=NULL;
-  size_t len = 0;
-
-  while (getline(&currentQuestion,&len,questionsFile)!=-1){
-    printf("%s\n",currentQuestion);
+  char *currentAnswer=NULL;
+  // 按行读取
+  while (getline(&currentQuestion,NULL,questionsFile)!=-1
+  && getline(&currentAnswer,NULL,answersFile)!=-1 ){
+    expr(currentQuestion,&evalResult);
   }
+
   free(currentQuestion);
   fclose(questionsFile);
-//  return evalResult;
-  return 0;
+  return evalResult;
 }
 
 static int cmd_help(char *args);
