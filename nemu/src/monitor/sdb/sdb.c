@@ -73,22 +73,23 @@ static int cmd_x(char *args){
   // 分开长度字符串和起始地址表达式字符串
   char *stringLen = strtok(args," ");
   char *exp= args+ strlen(stringLen) +1;
+  _Bool success=false;
 
-  _Bool evalResult=expr(exp,&evalResult);
-  assert(evalResult);
+  // 计算表达式字符串
+  word_t evalResult=expr(exp,&success);
+  assert(success);
+  printf("startAddr: 0x%08X\n", evalResult);
 
-  // 计算表达式字符串，并将其映射到宿主机内存地址中
-
-/*  paddr_t expResult= strtol(exp,NULL,16);
-  printf("startAddr: 0x%08X\n", expResult);
-  uint8_t *realAddr= guest_to_host(expResult);
+  // 将其映射到宿主机内存地址中
+  uint8_t *realAddr= guest_to_host(evalResult);
 
   // 读取指定长度的内存
   for(uint i=0;i< strtol(stringLen,NULL,10);++i){
     if(i%8==0 && i!=0) printf("\n");
     printf("%02X ",*(realAddr+i));
   }
-  printf("\n");*/
+
+  printf("\n");
   return 0;
 }
 
@@ -96,6 +97,7 @@ static int cmd_p(char *args){
   _Bool evalResult=false;
 //  expr(args,&evalResult);
 
+// 测试表达式求值
   // 读取文件
   FILE *testFile= fopen("test/calculatorTestFile","r");
   //设置每行内容

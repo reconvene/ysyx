@@ -31,7 +31,7 @@ enum {
   TK_PLUS,
   TK_SUB,
   TK_MUL,
-//  TK_DIV,
+  TK_DIV,
 //  TK_MOD,
 //  TK_POW,
 
@@ -57,7 +57,7 @@ static struct rule {
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\n",TK_ENTER},
-//  {"\\/",TK_DIV},
+  {"\\/",TK_DIV},
 //  {"\\%",TK_MOD},
 //  {"\\^",TK_POW}
 
@@ -223,7 +223,7 @@ long int eval(uint8_t start, uint8_t end){
       if(tokens[i].type==TK_RIGHT_SP) SPNum-=1;
 //      printf("%d  %s\n",i,tokens[i].str);
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
-      // 判断运算符的优先级，在预算符相同优先级时选择最左边的
+      // 判断运算符的优先级，在预算符相同优先级时选择最右边的
       if(tokens[i].type>260 && tokens[i].type!=TK_NUM && SPNum==0 && judgeLevel(tokens[i].type)<=tmpPriority) {
           opPosition=i;
 //          printf("priority:%d\n",judgeLevel(tokens[i].type));
@@ -248,8 +248,8 @@ long int eval(uint8_t start, uint8_t end){
         return leftValue-rightValue;
       case TK_MUL:
         return leftValue*rightValue;
-//      case TK_DIV:
-//        return leftValue/rightValue;
+      case TK_DIV:
+        return leftValue/rightValue;
 //      case TK_POW:
 //        return (long int)pow(leftValue,rightValue);
 //      case TK_MOD:
@@ -260,20 +260,19 @@ long int eval(uint8_t start, uint8_t end){
   }
 }
 
-//// 计算表达式
-//word_t expr(char *e, bool *success) {
-//  if (!make_token(e)) {
-//    *success = false;
-//    return 0;
-//  }
-//
-//  /* TODO: Insert codes to evaluate the expression. */
-//  // 计算拆分结果
-//  long int resultNum=eval(0,nr_token-1);
-//  printf("result:%ld\n",resultNum);
-//
-//  return 1;
-//}
+/*// 计算表达式
+word_t expr(char *e, bool *success) {
+  if (!make_token(e)) {
+    *success = false;
+    return 0;
+  }
+
+  // 计算拆分结果
+  long int resultNum=eval(0,nr_token-1);
+  printf("result:%ld\n",resultNum);
+
+  return resultNum;
+}*/
 
 // 测试表达式求值
 word_t expr(char *e, bool *success) {
@@ -285,12 +284,12 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  /* TODO: Insert codes to evaluate the expression. */
   // 计算拆分结果
   long int resultNum=eval(0,nr_token-1);
   printf("result:%ld\n",resultNum);
 
   assert(strtol(answer,NULL,10)==resultNum);
+  printf("PASSED!");
 
   return 1;
 }
