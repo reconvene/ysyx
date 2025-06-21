@@ -283,7 +283,7 @@ long int eval(uint8_t start, uint8_t end){
 }
 
 // 计算表达式
-word_t expr(char *e, bool *success) {
+/*word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
@@ -300,9 +300,9 @@ word_t expr(char *e, bool *success) {
 
   if(success) *success=true;
   return resultNum;
-}
+}*/
 
-/*// 测试表达式求值
+// 测试表达式求值
 word_t expr(char *e, bool *success) {
   char *answer = strtok(e," ");
   char *question= e+ strlen(answer) +1;
@@ -318,4 +318,4 @@ word_t expr(char *e, bool *success) {
   assert(strtol(answer,NULL,10)==resultNum);
 
   return 1;
-}*/
+}
