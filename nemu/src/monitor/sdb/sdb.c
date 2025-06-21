@@ -92,7 +92,9 @@ static int cmd_x(char *args){
     printf("%02X ",*(realAddr+i));
   }
 
-  printf("\n");
+  // 输出读取结束时的内存地址
+  printf("\nendAddr: 0x%08X\n", evalResult+(unsigned int)strtol(stringLen,NULL,10));
+
   return 0;
 }
 
@@ -127,7 +129,7 @@ static int cmd_pTest(char *args) {
     }
   }
   // 输出测试结果
-  printf("Total tests:%d\nPassed tests:%d\n%05.2f%%\n",execCount,sucessCount,(float)sucessCount/(float)execCount*100);
+  printf("Total tests:%d\nPassed tests:%d\nPass rate:%05.2f%%\n",execCount,sucessCount,(float)sucessCount/(float)execCount*100);
 
   free(currentTest);
   fclose(testFile);
