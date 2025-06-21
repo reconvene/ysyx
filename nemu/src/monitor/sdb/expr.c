@@ -116,8 +116,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-//        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-//            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -247,12 +247,12 @@ long int eval(uint8_t start, uint8_t end){
 
     // 对右边表达式进行求值;
     long int rightValue= eval(opPosition+1,end);
-    // // 如果该符号为解析符，则直接返回解析后的值
-    // switch (tokens[opPosition].type) {
-    //   case TK_PTR:
-    //     return *guest_to_host(rightValue);
-    //   default:break;
-    // }
+    // 如果该符号为解析符，则直接返回解析后的值
+    switch (tokens[opPosition].type) {
+      case TK_PTR:
+        return *guest_to_host(rightValue);
+      default:break;
+    }
 
     // 对左边表达式进行求值
     long int leftValue= eval(start,opPosition-1);
@@ -266,12 +266,12 @@ long int eval(uint8_t start, uint8_t end){
         return leftValue*rightValue;
       case TK_DIV:
         return leftValue/rightValue;
-      // case TK_EQ:
-      //   return leftValue==rightValue;
-      // case TK_NEQ:
-      //   return leftValue!=rightValue;
-      // case TK_AND:
-      //   return leftValue&&rightValue;
+      case TK_EQ:
+        return leftValue==rightValue;
+      case TK_NEQ:
+        return leftValue!=rightValue;
+      case TK_AND:
+        return leftValue&&rightValue;
       // case TK_POW:
       //   return (long int)pow(leftValue,rightValue);
       // case TK_MOD:
