@@ -96,26 +96,43 @@ static int cmd_x(char *args){
   return 0;
 }
 
+// 表达式求值
 static int cmd_p(char *args){
   _Bool evalResult=false;
   printf("result:%u\n",expr(args,&evalResult));
 
-/*// 测试表达式求值
+  return evalResult;
+}
+
+// 表达式测试
+static int cmd_pTest(char *args) {
+
+  // 测试表达式求值
   // 读取文件
   FILE *testFile= fopen("test/calculatorTestFile","r");
   //设置每行内容
   char *currentTest=NULL;
   size_t testLen=0;
+  // 初始化计数器
+  int execCount=0;
+  int sucessCount=0;
+
   // 按行读取
   while (getline(&currentTest,&testLen,testFile)!=-1){
-    expr(currentTest,&evalResult);
+    execCount+=1;
+    sucessCount+=exprForTest(currentTest);
+    // 如果当前测试失败，则输出失败用例
+    if(!sucessCount) {
+      printf("%s\n",currentTest);
+    }
   }
-  printf("PASSED!\n");
+  // 输出测试结果
+  printf("Total tests:%d\nPassed tests:%d\n%05.2f%%\n",execCount,sucessCount,(float)sucessCount/(float)execCount*100);
 
   free(currentTest);
-  fclose(testFile);*/
+  fclose(testFile);
 
-  return evalResult;
+  return 0;
 }
 
 static int cmd_w(char *args){
@@ -152,9 +169,9 @@ static struct {
   {"info","View the registers using a specified method",cmd_info},
   {"x","View memory using an expression and a step size",cmd_x},
   {"p", "Calculate the expression",cmd_p},
+  {"pTest", "Test expression evaluation",cmd_pTest},
   {"w", "Monitor the expression",cmd_w},
   {"d", "Delete the watchpoint",cmd_d},
-
 
   /* TODO: Add more commands */
 
