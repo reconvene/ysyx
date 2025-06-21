@@ -211,11 +211,11 @@ long int eval(uint8_t start, uint8_t end){
     switch (tokens[start].type) {
       case TK_NUM:
         return strtol(tokens[start].str,NULL,0);
-//      case TK_REG:
-//        _Bool resultState=false;
-//        word_t result=isa_reg_str2val(tokens[start].str+1,&resultState);
-//        if(!resultState) panic("Failed to get register value");
-//        return result;
+      case TK_REG:
+        _Bool resultState=false;
+        word_t result=isa_reg_str2val(tokens[start].str+1,&resultState);
+        if(!resultState) panic("Failed to get register value");
+        return result;
       default:panic("the format of number isn't existing");
     }
 
@@ -247,12 +247,12 @@ long int eval(uint8_t start, uint8_t end){
 
     // 对右边表达式进行求值;
     long int rightValue= eval(opPosition+1,end);
-/*    // 如果该符号为解析符，则直接返回解析后的值
+    // 如果该符号为解析符，则直接返回解析后的值
     switch (tokens[opPosition].type) {
       case TK_PTR:
         return *guest_to_host(rightValue);
       default:break;
-    }*/
+    }
 
     // 对左边表达式进行求值
     long int leftValue= eval(start,opPosition-1);
@@ -266,12 +266,12 @@ long int eval(uint8_t start, uint8_t end){
         return leftValue*rightValue;
       case TK_DIV:
         return leftValue/rightValue;
-//      case TK_EQ:
-//        return leftValue==rightValue;
-//      case TK_NEQ:
-//        return leftValue!=rightValue;
-//      case TK_AND:
-//        return leftValue&&rightValue;
+      case TK_EQ:
+        return leftValue==rightValue;
+      case TK_NEQ:
+        return leftValue!=rightValue;
+      case TK_AND:
+        return leftValue&&rightValue;
 //      case TK_POW:
 //        return (long int)pow(leftValue,rightValue);
 //      case TK_MOD:
