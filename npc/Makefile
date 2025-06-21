@@ -32,8 +32,8 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
 
-all:sim
-	@echo "Write this Makefile by your self."
+#all:sim
+#	@echo "Write this Makefile by your self."
 
 sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -42,6 +42,7 @@ sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
    		--top-module $(TOPNAME) $^ \
    		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
    		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+	$(BUILD_DIR)/$(TOPNAME)
 
 clean:
 	rm -rf $(BUILD_DIR)
