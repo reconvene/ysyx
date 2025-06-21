@@ -99,12 +99,12 @@ void free_wp_by_no(int targetNo){
   }
 
   WP *tmpWP=head;
-  WP *nextWP=head->next;
+//  WP *nextWP=head->next;
   if(head->NO==targetNo){
     tmpWP->next=free_;
     tmpWP->initialState=false;
     free_=tmpWP;
-    head=head->next==NULL?NULL:nextWP;
+    head=head->next;
     return;
   }
 
