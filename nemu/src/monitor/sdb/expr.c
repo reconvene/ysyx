@@ -247,12 +247,12 @@ long int eval(uint8_t start, uint8_t end){
 
     // 对右边表达式进行求值;
     long int rightValue= eval(opPosition+1,end);
-    // 如果该符号为解析符，则直接返回解析后的值
-    switch (tokens[opPosition].type) {
-      case TK_PTR:
-        return *guest_to_host(rightValue);
-      default:break;
-    }
+    // // 如果该符号为解析符，则直接返回解析后的值
+    // switch (tokens[opPosition].type) {
+    //   case TK_PTR:
+    //     return *guest_to_host(rightValue);
+    //   default:break;
+    // }
 
     // 对左边表达式进行求值
     long int leftValue= eval(start,opPosition-1);
@@ -266,16 +266,16 @@ long int eval(uint8_t start, uint8_t end){
         return leftValue*rightValue;
       case TK_DIV:
         return leftValue/rightValue;
-      case TK_EQ:
-        return leftValue==rightValue;
-      case TK_NEQ:
-        return leftValue!=rightValue;
-      case TK_AND:
-        return leftValue&&rightValue;
-//      case TK_POW:
-//        return (long int)pow(leftValue,rightValue);
-//      case TK_MOD:
-//        return leftValue%rightValue;
+      // case TK_EQ:
+      //   return leftValue==rightValue;
+      // case TK_NEQ:
+      //   return leftValue!=rightValue;
+      // case TK_AND:
+      //   return leftValue&&rightValue;
+      // case TK_POW:
+      //   return (long int)pow(leftValue,rightValue);
+      // case TK_MOD:
+      //   return leftValue%rightValue;
       default:
         panic("the expression has something wrong");
     }
@@ -302,20 +302,17 @@ word_t expr(char *e, bool *success) {
   return resultNum;
 }
 
-//// 测试表达式求值
-//word_t expr(char *e, bool *success) {
-//  char *answer = strtok(e," ");
-//  char *question= e+ strlen(answer) +1;
-//
-//  if (!make_token(question)) {
-//    *success = false;
-//    return 0;
-//  }
-//
-//  // 计算拆分结果
-//  long int resultNum=eval(0,nr_token-1);
-//  printf("result:%ld\n",resultNum);
-//  assert(strtol(answer,NULL,10)==resultNum);
-//
-//  return 1;
-//}
+// 测试表达式求值
+int exprForTest(char *e) {
+  char *answer = strtok(e," ");
+  char *question= e+ strlen(answer) +1;
+
+  make_token(question);
+
+  // 计算拆分结果
+  long int resultNum=eval(0,nr_token-1);
+
+  if (resultNum!=strtol(answer,NULL,10)) return 0;
+
+  return 1;
+}
