@@ -4,7 +4,7 @@ INC_PATH ?=
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert
+				-O3 --x-assign fast --x-initial fast --noassert --trace-fst
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -21,7 +21,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.*v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+CSRCS = $(shell find $(abspath ./csrc) -name "$(TOPNAME)_sim_main.c" -or -name "$(TOPNAME)_sim_main.cc" -or -name "$(TOPNAME)_sim_main.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 
 # rules for NVBoard
@@ -32,8 +32,8 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
 
-all:sim
-	@echo "Write this Makefile by your self."
+#all:sim
+#	@echo "Write this Makefile by your self."
 
 sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -42,6 +42,7 @@ sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
    		--top-module $(TOPNAME) $^ \
    		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
    		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+	$(BUILD_DIR)/$(TOPNAME)
 
 clean:
 	rm -rf $(BUILD_DIR)
