@@ -69,20 +69,25 @@ class ps2Receiver extends Module{
     val dout=Output(Bits(8.W))
   })
 
-  val tmpOut=RegInit(0.U(8.W))
+  val tmpOut=RegInit(0.U(9.W))
   // 定义接收计数
-  var signalCount = 0
+  val signalCount = RegInit(0.U(4.W))
+
   // 判断到下降沿则执行
   when(receiverIO.clkin===2.U){
     // 接收计数+1
-    signalCount +=1
-    // 去掉开始位、校验位和结束位
-    tmpOut:=Mux(signalCount.U%11.U > 0.U && signalCount.U%11.U < 9.U,receiverIO.din ## tmpOut(7,1), 0.U)
+    signalCount :=signalCount+1.U
+    // 去掉开始位和结束位
+    tmpOut:=Mux(signalCount > 0.U && signalCount < 10.U, receiverIO.din ## tmpOut(8,1), 0.U)
   }
-//  printf("tmpout:\t%b\n",tmpOut)
-  receiverIO.dout:=tmpOut
 
+  // 重置接收计数器
+  when(signalCount>10.U){
+    signalCount:=0.U
+  }
 
+  // 如果奇偶校验正确，则解码
+  receiverIO.dout:=Mux((PopCount(tmpOut(7,0))+tmpOut(8))(0).asBool,tmpOut(7,0),0.U)
 }
 
 // 定义ps/2连接器
@@ -107,4 +112,7 @@ class ps2Connecter extends Module{
   ps2Codec.codecIO.codecDirection:=1.U
   ps2Codec.codecIO.inputValue:=ps2Receiver.receiverIO.dout
   io.out:=ps2Codec.codecIO.outputValue
+  when(io.out=/=0.U){
+    printf("%d\n",ps2Codec.codecIO.outputValue)
+  }
 }
