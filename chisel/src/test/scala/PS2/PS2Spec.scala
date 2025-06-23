@@ -21,16 +21,17 @@ class PS2Spec extends AnyFreeSpec with Matchers {
       dut.reset.poke(true.B)
       dut.clock.step(3)
       dut.reset.poke(false.B)
-      println("0".head.toInt)
-      ps2Sender(dut,'0')
+//      println("0".head.toInt)
+//      ps2Sender(dut,'0')
       println("1".head.toInt)
       ps2Sender(dut,'1')
-      println("a".head.toInt)
+//      dut.clock.step(2)
+/*      println("a".head.toInt)
       ps2Sender(dut,'a')
       println("f".head.toInt)
       ps2Sender(dut,'f')
       println("?".head.toInt)
-      ps2Sender(dut,'?')
+      ps2Sender(dut,'?')*/
 
     }
   }

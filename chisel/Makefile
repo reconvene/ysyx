@@ -43,11 +43,10 @@ _default:
 	@echo "Please run 'make' under subprojects."
 
 verilog:
-	echo "test"
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
 	mill -i __.runMain $(word 2, $(MAKECMDGOALS)) --target-dir $(BUILD_DIR)
-	cp -pf $(BUILD_DIR)/* /home/admin123/ysyx-workbench/npc/vsrc
+	cp -pf $(BUILD_DIR)/* /home/admin123/ysyx-branches/npc/npc/vsrc
 
 
 .PHONY: .git_commit .clean_index _default
