@@ -31,7 +31,27 @@ class ps2Codec extends Module {
     "h21".U(8.W) -> "c".head.toInt.U(8.W), // C
     "h23".U(8.W) -> "d".head.toInt.U(8.W), // D
     "h24".U(8.W) -> "e".head.toInt.U(8.W), // E
-    "h2B".U(8.W) -> "f".head.toInt.U(8.W) // F
+    "h2B".U(8.W) -> "f".head.toInt.U(8.W), // F
+    "h34".U(8.W) -> "g".head.toInt.U(8.W), // G
+    "h33".U(8.W) -> "h".head.toInt.U(8.W), // H
+    "h43".U(8.W) -> "i".head.toInt.U(8.W), // I
+    "h3B".U(8.W) -> "j".head.toInt.U(8.W), // J
+    "h42".U(8.W) -> "k".head.toInt.U(8.W), // K
+    "h4B".U(8.W) -> "l".head.toInt.U(8.W), // L
+    "h3A".U(8.W) -> "m".head.toInt.U(8.W), // M
+    "h31".U(8.W) -> "n".head.toInt.U(8.W), // N
+    "h44".U(8.W) -> "o".head.toInt.U(8.W), // O
+    "h4D".U(8.W) -> "p".head.toInt.U(8.W), // P
+    "h15".U(8.W) -> "q".head.toInt.U(8.W), // Q
+    "h2D".U(8.W) -> "r".head.toInt.U(8.W), // R
+    "h1B".U(8.W) -> "s".head.toInt.U(8.W), // S
+    "h2C".U(8.W) -> "t".head.toInt.U(8.W), // T
+    "h3C".U(8.W) -> "u".head.toInt.U(8.W), // U
+    "h2A".U(8.W) -> "v".head.toInt.U(8.W), // V
+    "h1D".U(8.W) -> "w".head.toInt.U(8.W), // W
+    "h22".U(8.W) -> "x".head.toInt.U(8.W), // X
+    "h35".U(8.W) -> "y".head.toInt.U(8.W), // Y
+    "h1A".U(8.W) -> "z".head.toInt.U(8.W)  // Z
   )
 
   val decodeCases = keyMap.map { case (k, v) =>
@@ -78,16 +98,20 @@ class ps2Receiver extends Module{
     // 接收计数+1
     signalCount :=signalCount+1.U
     // 去掉开始位和结束位
-    tmpOut:=Mux(signalCount > 0.U && signalCount < 10.U, receiverIO.din ## tmpOut(8,1), 0.U)
+    tmpOut:=Mux(signalCount > 0.U && signalCount < 10.U, receiverIO.din ## tmpOut(8,1),tmpOut)
   }
 
-  // 重置接收计数器
+  // 当接收完一组数据时
   when(signalCount>10.U){
+    // 重置接收计数器
     signalCount:=0.U
+//    printf("%b\n",~tmpOut(7,0).xorR===tmpOut(8))
+    // 如果奇校验正确，则输出
+    receiverIO.dout:=Mux(~tmpOut(7,0).xorR===tmpOut(8),tmpOut(7,0),0.U)
+  }.otherwise{
+    // 没接收完则为0，防止中间值产生
+    receiverIO.dout:=0.U
   }
-
-  // 如果奇偶校验正确，则解码
-  receiverIO.dout:=Mux((PopCount(tmpOut(7,0))+tmpOut(8))(0).asBool,tmpOut(7,0),0.U)
 }
 
 // 定义ps/2连接器
@@ -96,6 +120,7 @@ class ps2Connecter extends Module{
   val io=IO(new Bundle {
     val ps2_clk=Input(Bits(1.W))
     val ps2_data=Input(Bits(1.W))
+    val originOut=Output(UInt(8.W))
     val out=Output(UInt(8.W))
   })
 
@@ -111,8 +136,10 @@ class ps2Connecter extends Module{
 
   ps2Codec.codecIO.codecDirection:=1.U
   ps2Codec.codecIO.inputValue:=ps2Receiver.receiverIO.dout
+
+  io.originOut:=ps2Receiver.receiverIO.dout
   io.out:=ps2Codec.codecIO.outputValue
-  when(io.out=/=0.U){
-    printf("%d\n",ps2Codec.codecIO.outputValue)
-  }
+//  when(io.out=/=0.U){
+//    printf("%d\n",ps2Codec.codecIO.outputValue)
+//  }
 }

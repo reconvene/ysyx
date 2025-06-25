@@ -1,13 +1,17 @@
-// See README.md for license details.
-
 package displayCodec
 
 import chisel3._
 import chisel3.util._
 
-//
-object displayCodecMap {
-  val displayCodecMap=VecInit(Seq.fill(128)(0.U(8.W)))
+// 定义编码器,返回对应字符数码管编码
+class displayEncodec extends Module {
+  val encodec = IO(new Bundle {
+    val n = Input(UInt(8.W))
+    val en = Input(Bool())
+    val m = Output(Bits(8.W))
+  })
+
+  val displayCodecMap=VecInit(Seq.fill(256)(0.U(8.W)))
   // 0-9数码管编码
   displayCodecMap(48):="b11111101".U
   displayCodecMap(49):="b01100001".U
@@ -26,16 +30,8 @@ object displayCodecMap {
   displayCodecMap(100):="b01111011".U
   displayCodecMap(101):="b10011111".U
   displayCodecMap(102):="b10001111".U
-}
 
-// 定义编码器,返回对应字符数码管编码
-class displayEncodec() extends Module {
-  val encodec = IO(new Bundle {
-    val n = Input(UInt(7.W))
-    val en = Input(Bool())
-    val m = Output(Bits(8.W))
-  })
-  encodec.m := Mux(encodec.en && displayCodecMap.displayCodecMap(encodec.n)=/=0.U, displayCodecMap.displayCodecMap(encodec.n), 1.U(8.W))
+  encodec.m := Mux(encodec.en && displayCodecMap(encodec.n)=/=0.U, displayCodecMap(encodec.n), 1.U(8.W))
 }
 
 // 定义解码器，返回log2Ceil(m)
@@ -51,7 +47,7 @@ class displayEncodec() extends Module {
 
 class displayCodecTop extends Module {
   val encodeIO = IO(new Bundle {
-    val n = Input(UInt(7.W))
+    val n = Input(UInt(8.W))
     val en = Input(Bool())
     val m = Output(Bits(8.W))
   })
