@@ -1,13 +1,13 @@
-#include "Vps2Connecter.h"
+#include "Vps2Display.h"
 #include "verilated.h"
 #include "verilated_fst_c.h"
 #include <random>
 #include <nvboard.h>
 
-void nvboard_bind_all_pins(Vps2Connecter *topModule);
+void nvboard_bind_all_pins(Vps2Display *topModule);
 
 // 电路更新
-void moveFroward(Vps2Connecter *target ,int steps){
+void moveFroward(Vps2Display *target ,int steps){
     for(int j=0;j<steps;++j){
         target->clock = 1;
         target->eval();
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     VerilatedFstC *waveTracer = new VerilatedFstC;
 
     // 将顶部模板引入上下文中运行
-    Vps2Connecter *top = new Vps2Connecter{contextP};
+    Vps2Display *top = new Vps2Display{contextP};
     // 绑定模块引脚
     nvboard_bind_all_pins(top);
 
@@ -46,14 +46,13 @@ int main(int argc, char **argv) {
     }
     // 将复位信号归位
     top->reset = 0;
+    top->eval();
 
+    // 默认点亮所有数码管
+    top->io_en=1;
     int i=0;
     // 如果运行未完成则一直运行
     while (!contextP->gotFinish()) {
-        // printf("%d\n",i);
-        // printf("%d\n",top->io_ps2_data);
-        // printf("%d\n",top->io_out);
-        // printf("%d\n",top->io_ps2_clk);
         moveFroward(top,1);
         waveTracer->dump(timeCount++);
         nvboard_update();

@@ -1,12 +1,15 @@
 *.*
 *
 !*/
+!constr/
 !Makefile
 !*.mk
 !*.[cSh]
 !*.v
+!*.sv
 !*.cc
 !*.cpp
 !.gitignore
+!nvboard
 !README.md
 build/
