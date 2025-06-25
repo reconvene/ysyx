@@ -1,5 +1,5 @@
-TOPNAME = ps2Connecter
-NXDC_FILES = constr/top.nxdc
+TOPNAME = ps2Display
+NXDC_FILES = constr/$(TOPNAME).nxdc
 INC_PATH ?=
 
 VERILATOR = verilator
@@ -15,12 +15,12 @@ default: $(BIN)
 $(shell mkdir -p $(BUILD_DIR))
 
 # constraint file
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/$(TOPNAME)_auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.*v")
+VSRCS = $(shell find $(abspath ./vsrc) -name "$(TOPNAME).*v")
 CSRCS = $(shell find $(abspath ./csrc) -name "$(TOPNAME)_sim_main.c" -or -name "$(TOPNAME)_sim_main.cc" -or -name "$(TOPNAME)_sim_main.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 
@@ -37,7 +37,6 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
 sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
    		--top-module $(TOPNAME) $^ \
    		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
