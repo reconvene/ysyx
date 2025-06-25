@@ -27,13 +27,14 @@ class ps2Sim extends Module {
 
 
   // 拼接待处理字符串
-  val finalData=0.U ## outputNum ## 2.U
+  val finalData=2.U ## outputNum ## 0.U
 
 
   // 计数<22则反转时钟、根据数据数据索引获取临时数据并且增加计数器
   when(initialCnt<22.U){
     initialClk:= ~initialClk
     tmpData:=finalData(dataIndex)
+//    printf("tmpData:\t%d\n",tmpData)
     tmpDataGroup:= tmpDataGroup(20,0) ## tmpData
     // dataIndex每2进1
     when(initialCnt%2.U===0.U && initialCnt =/= 0.U){
@@ -45,6 +46,7 @@ class ps2Sim extends Module {
   }.otherwise{
     initialClk:= ~initialClk
     tmpData:=finalData(dataIndex)
+//    printf("tmpData:\t%d\n",tmpData)
     tmpDataGroup:= tmpDataGroup(20,0) ## tmpData
     initialCnt:=1.U
     initialClk:=0.U
@@ -53,6 +55,8 @@ class ps2Sim extends Module {
 
 //  printf("dataIndex:\t%d\n",dataIndex)
 //  printf("initialCnt:\t%d\n",initialCnt)
+
+
 
 //  printf("finalData:%b\n",finalData)
 //  printf("tmpDataGroup:\t%b\n",tmpDataGroup)
