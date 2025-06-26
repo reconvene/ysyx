@@ -8,7 +8,7 @@ import _root_.circt.stage.ChiselStage
 
 object PS2Verilog extends App {
   ChiselStage.emitSystemVerilogFile(
-    new ps2Connecter,
+    new ps2Display,
     args,
     firtoolOpts = Array("-disable-all-randomization")
   )
