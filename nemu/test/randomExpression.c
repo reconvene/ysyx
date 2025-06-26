@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <sys/random.h>
 
 #define MAX_DEPTH 4
 int currentLocation = 0;
@@ -19,9 +20,9 @@ void gen(char inputChar, char *expBuffer) {
 
 // 生成随机操作符
 void gen_rand_op(char *expBuffer) {
-  char opGroup[] = {'+', '-', '*', '/'};
-  sprintf(expBuffer + currentLocation, "%c", opGroup[randInRange(0, 6)]);
-  currentLocation += 1;
+  char *opGroup[] = {"+", "-", "*", "/","==","!=","%","&&","||"};
+  int randomNum = randInRange(0, 6);
+  currentLocation +=sprintf(expBuffer + currentLocation, "%s", opGroup[randomNum]);
 }
 
 // 生成最大为100的数字到字符串中
@@ -71,41 +72,36 @@ void gen_rand_expr(int depth, char *expBuffer) {
 //  printf("[DEBUG] depth=%d, current/Location=%d, randomOption=%d, exp=%s\n", depth, currentLocation,randomOption, expBuffer);
 }
 
-int main(int argc, char *argv[]) {
+int main() {
   // 重置随机种子
-  srand((unsigned int) time(NULL));
+  unsigned int seed;
+  getrandom(&seed, sizeof(seed), 0);
+  srand(seed);
 
   char *exp = malloc(100 * sizeof(char));
   memset(exp, 0, 100);
 
-  for (int i = 0; i < atoi(argv[1]); ++i) {
-    int SPNum=0;
-    gen_rand_expr(0, exp);
+  int SPNum=0;
+  gen_rand_expr(0, exp);
 
-    // 检查左右括号是否匹配
-    for(int j=0;exp[j]!=0;++j){
-      if(exp[j]=='('){
-        SPNum+=1;
-      };
-      if(exp[j]==')') SPNum-=1;
-    }
+  // 检查左右括号是否匹配
+  for(int j=0;exp[j]!='\0';++j){
+    if(exp[j]=='(') SPNum+=1;
+    if(exp[j]==')') SPNum-=1;
+  }
 //    printf("SPNum:%d\n",SPNum);
 
-    // 如果括号不匹配，则进入下一个循环
-    if(SPNum!=0){
-      memset(exp, 0, 100);
-      currentLocation=0;
-      i-=1;
-      continue;
-    }
-
-    // 输出表达式
-    printf("%s\n", exp);
-    memset(exp, 0, 100);
-    currentLocation=0;
+    // 如果括号不匹配，则返回1
+  if(SPNum!=0) {
+    free(exp);
+    return 1;
   }
 
-  free(exp);
+  // 输出表达式
+  printf("%s\n", exp);
+  memset(exp, 0, 100);
+  currentLocation=0;
 
+  free(exp);
   return 0;
 }

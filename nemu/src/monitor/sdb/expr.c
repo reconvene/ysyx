@@ -36,8 +36,9 @@ enum {
   TK_EQ,
   TK_NEQ,
   TK_AND,
+  TK_OR,
   TK_PTR,
-//  TK_MOD,
+  TK_MOD,
 //  TK_POW,
 
   /* TODO: Add more token types */
@@ -61,13 +62,14 @@ static struct rule {
   {"==", TK_EQ},        // equal
   {"!=",TK_NEQ},
   {"&&",TK_AND},
+  {"\\|\\|",TK_OR},
   {"\\*", TK_MUL},
   {"\\-",TK_SUB},
   {"\\(",TK_LEFT_SP},
   {"\\)",TK_RIGHT_SP},
   {"\n",TK_ENTER},
-  {"\\/",TK_DIV}
-//  {"\\%",TK_MOD},
+  {"\\/",TK_DIV},
+  {"\\%",TK_MOD},
 //  {"\\^",TK_POW}
 
 
@@ -117,7 +119,7 @@ static bool make_token(char *e) {
         int substr_len = pmatch.rm_eo;
 
         // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -179,7 +181,6 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
   // 内部括号不匹配
   if(SPNum!=0){
     panic("the brackets aren't matching");
-    return false;
   }
 
   return true;
@@ -188,13 +189,21 @@ _Bool check_parentheses(uint8_t start, uint8_t end){
 // 判断优先级
 uint8_t judgeLevel(int inputValue){
   switch (inputValue) {
+    case TK_AND:
+    case TK_OR:
+      return 0;
+    case TK_EQ:
+    case TK_NEQ:
+      return 1;
     case TK_PLUS:
     case TK_SUB:
-      return 1;
-    case TK_MUL:
       return 2;
-    case TK_PTR:
+    case TK_MUL:
+    case TK_DIV:
+    case TK_MOD:
       return 3;
+    case TK_PTR:
+      return 4;
     default:
       return 10;
   }
@@ -236,11 +245,11 @@ long int eval(uint8_t start, uint8_t end){
       if(tokens[i].type==TK_RIGHT_SP) SPNum-=1;
 //      printf("%d  %s\n",i,tokens[i].str);
       // 如果找到运算符且其没有被表达式包裹则设为主运算符
-      // 判断运算符的优先级，在预算符相同优先级时选择最右边的
-      if(tokens[i].type>260 && tokens[i].type!=TK_NUM && SPNum==0 && judgeLevel(tokens[i].type)<=tmpPriority) {
+      // 判断运算符的优先级，在运算符相同优先级时选择最右边的
+      if(tokens[i].type>260 && SPNum==0 && judgeLevel(tokens[i].type)<=tmpPriority) {
           opPosition=i;
-//          printf("priority:%d\n",judgeLevel(tokens[i].type));
-//          printf("type:%d\n",tokens[i].type);
+          // printf("priority:%d\n",judgeLevel(tokens[i].type));
+          // printf("type:%d\n",tokens[i].type);
           tmpPriority=judgeLevel(tokens[i].type);
       }
     }
@@ -271,11 +280,13 @@ long int eval(uint8_t start, uint8_t end){
       case TK_NEQ:
         return leftValue!=rightValue;
       case TK_AND:
-        return leftValue&&rightValue;
+        return leftValue && rightValue;
+      case TK_OR:
+        return leftValue || rightValue;
+      case TK_MOD:
+        return leftValue%rightValue;
       // case TK_POW:
       //   return (long int)pow(leftValue,rightValue);
-      // case TK_MOD:
-      //   return leftValue%rightValue;
       default:
         panic("the expression has something wrong");
     }
