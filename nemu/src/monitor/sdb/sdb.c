@@ -125,7 +125,7 @@ static int cmd_pTest(char *args) {
     sucessCount+=exprForTest(currentTest);
     // 如果当前测试失败，则输出失败用例
     if(!sucessCount) {
-      printf("%s\n",currentTest);
+      printf("Failure:%s\n",currentTest);
     }
   }
   // 输出测试结果
