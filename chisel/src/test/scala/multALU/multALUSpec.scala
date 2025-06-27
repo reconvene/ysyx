@@ -73,8 +73,8 @@ class multALUSpec extends AnyFreeSpec with Matchers {
 
       //逻辑运算检测
       val randomGenerator=new Random()
-      val randomA=randomGenerator.nextInt((7 + 8) + 1) -8
-      val randomB=randomGenerator.nextInt((7 + 8) + 1) -8
+      val randomA=randomGenerator.nextInt(16) -8
+      val randomB=randomGenerator.nextInt(16) -8
       assert(multALUTester(randomA,0,2)== ~randomA)
       assert(multALUTester(randomA,randomB,3) == (randomA & randomB))
       assert(multALUTester(randomA,randomB,4) == (randomA | randomB))
