@@ -23,12 +23,14 @@ class singleALU extends Module {
 class multALU(width: Int) extends Module {
   // 声明io接口
   val io = IO(new Bundle {
-    val a = Input(UInt(width.W))
-    val b = Input(UInt(width.W))
+    val a = Input(SInt(width.W))
+    val b = Input(SInt(width.W))
+    val opcode = Input(UInt(3.W))
     val cin = Input(UInt(1.W))
-    val out = Output(UInt((width + 1).W))
-    val carry =Output(Bool())
-    val zero =Output(Bool())
+    val out = Output(UInt(width.W))
+    val carry = Output(Bool())
+    val zero = Output(Bool())
+    val overflow = Output(Bool())
   })
 
   // 声明串行序列
@@ -36,19 +38,57 @@ class multALU(width: Int) extends Module {
     Module(new singleALU)
   }
 
+  // 如果为减法则反转b的符号(~b+1)
+  val inputB = Mux(io.opcode === 1.U, -io.b, io.b)
+
   // 绑定各加法器关系
   for (i <- 0 until (width - 1)) {
     aluSeq(i).singleALUIO.a := io.a(i)
-    aluSeq(i).singleALUIO.b := io.b(i)
+    aluSeq(i).singleALUIO.b := inputB(i)
     aluSeq(i + 1).singleALUIO.cin := aluSeq(i).singleALUIO.cout
   }
   aluSeq.head.singleALUIO.cin := io.cin
   aluSeq.last.singleALUIO.a := io.a(width - 1)
-  aluSeq.last.singleALUIO.b := io.b(width - 1)
-  
-  // 拼合输出、判断进位、判断是否为零
-  io.out := aluSeq.last.singleALUIO.cout ## Cat(aluSeq.reverse.map(dut => dut.singleALUIO.s))
-  io.carry:=aluSeq.last.singleALUIO.cout.asBool
-  io.zero := ~io.out.orR
+  aluSeq.last.singleALUIO.b := inputB(width - 1)
 
+
+  // 拼合输出、判断进位、判断是否为零和是否溢出
+  io.out := Cat(aluSeq.reverse.map(dut => dut.singleALUIO.s))
+  io.carry := aluSeq.last.singleALUIO.cout.asBool
+  io.zero := ~io.out.orR
+  io.overflow := (io.a(width - 1) === inputB(width - 1)) && (io.out(width-1) =/= io.a(width - 1))
+
+  // 根据操作码执行操作
+  switch(io.opcode) {
+    is(2.U) {
+      io.out := ~io.a.asUInt
+      io.carry := 0.U
+      io.overflow := 0.U
+    }
+    is(3.U) {
+      io.out := (io.a & io.b).asUInt
+      io.carry := 0.U
+      io.overflow := 0.U
+    }
+    is(4.U) {
+      io.out := (io.a | io.b).asUInt
+      io.carry := 0.U
+      io.overflow := 0.U
+    }
+    is(5.U) {
+      io.out := (io.a ^ io.b).asUInt
+      io.carry := 0.U
+      io.overflow := 0.U
+    }
+    is(6.U) {
+      io.out := Mux(io.a < io.b, 1.U, 0.U)
+      io.carry := 0.U
+      io.overflow := 0.U
+    }
+    is(7.U) {
+      io.out := Mux(io.a === io.b, 1.U, 0.U)
+      io.carry := 0.U
+      io.overflow := 0.U
+    }
+  }
 }
