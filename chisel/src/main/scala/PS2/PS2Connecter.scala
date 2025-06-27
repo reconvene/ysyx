@@ -12,7 +12,7 @@ class ps2Codec extends Module {
     val outputValue = Output(Bits(8.W))
   })
 
-//  printf("%b\n",codecIO.inputValue)
+//  printf("inputValue:%b\n",codecIO.inputValue)
   // 定义各个扫描码对应的字符
   val keyMap = Map(
     "hF0".U(8.W) -> "?".head.toInt.U(8.W),
@@ -93,20 +93,33 @@ class ps2Receiver extends Module{
   // 定义接收计数
   val signalCount = RegInit(0.U(4.W))
 
+//  printf("originData:%b\n",receiverIO.din)
+//      printf("clkin:%b\n",receiverIO.clkin)
   // 判断到下降沿则执行
   when(receiverIO.clkin===2.U){
+//    printf("signalCount:%d\n",signalCount)
+
+
+//    printf("1-10:%b\n",signalCount > 0.U && signalCount < 10.U)
+//    printf("data:%b\n",receiverIO.din)
     // 接收计数+1
     signalCount :=signalCount+1.U
+
     // 去掉开始位和结束位
     tmpOut:=Mux(signalCount > 0.U && signalCount < 10.U, receiverIO.din ## tmpOut(8,1),tmpOut)
+//    printf("tmpOut:%b\n",tmpOut)
   }
+
 
   // 当接收完一组数据时
   when(signalCount>10.U){
     // 重置接收计数器
+    printf("finalSignalCount:%d\n",signalCount)
     signalCount:=0.U
-//    printf("%b\n",~tmpOut(7,0).xorR===tmpOut(8))
+
+    printf("Odd Parity:%b\n",~tmpOut(7,0).xorR===tmpOut(8))
     // 如果奇校验正确，则输出
+    printf("outputValue:%b\n",receiverIO.dout)
     receiverIO.dout:=Mux(~tmpOut(7,0).xorR===tmpOut(8),tmpOut(7,0),0.U)
   }.otherwise{
     // 没接收完则为0，防止中间值产生
@@ -131,6 +144,7 @@ class ps2Connecter extends Module{
 
   // 存储一周期的时钟，并将其送入接收器内
   clkReg:=clkReg(0) ## io.ps2_clk
+
   ps2Receiver.receiverIO.din:=io.ps2_data
   ps2Receiver.receiverIO.clkin:=clkReg
 
@@ -139,7 +153,6 @@ class ps2Connecter extends Module{
 
   io.originOut:=ps2Receiver.receiverIO.dout
   io.out:=ps2Codec.codecIO.outputValue
-//  when(io.out=/=0.U){
-//    printf("%d\n",ps2Codec.codecIO.outputValue)
-//  }
+
+//  printf("ioOut:%b\n",ps2Receiver.receiverIO.dout)
 }
