@@ -69,12 +69,13 @@ void free_wp(WP *inputWP){
     return;
   }
 
+  WP *nextWP=head->next;
   // 只有一个节点
-  if (head->NO==inputWP->NO && !head->next){
+  if (head->NO==inputWP->NO){
     inputWP->next=free_;
     inputWP->initialState=false;
     free_=inputWP;
-    head=NULL;
+    head=head->next==NULL?NULL:nextWP;
     return;
   }
 
