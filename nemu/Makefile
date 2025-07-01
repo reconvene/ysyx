@@ -63,3 +63,7 @@ else
 include $(NEMU_HOME)/scripts/native.mk
 endif
 
+# 统计代码行数
+count:
+	@find . \( -type f -name "*.c" -o -name "*.h" \) -exec grep -v '^[[:space:]]*$$' {} + | wc -l
+
