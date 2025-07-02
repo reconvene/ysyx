@@ -97,11 +97,6 @@ class ps2Receiver extends Module{
 //      printf("clkin:%b\n",receiverIO.clkin)
   // 判断到下降沿则执行
   when(receiverIO.clkin===2.U){
-//    printf("signalCount:%d\n",signalCount)
-
-
-//    printf("1-10:%b\n",signalCount > 0.U && signalCount < 10.U)
-//    printf("data:%b\n",receiverIO.din)
     // 接收计数+1
     signalCount :=signalCount+1.U
 
