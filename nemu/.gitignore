@@ -10,5 +10,6 @@
 !test/*.sh
 !README.md
 !Kconfig
+document/*
 include/config
 include/generated
