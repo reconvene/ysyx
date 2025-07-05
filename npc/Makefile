@@ -1,4 +1,4 @@
-TOPNAME = ps2Display
+TOPNAME = npc
 NXDC_FILES = constr/$(TOPNAME).nxdc
 INC_PATH ?=
 
