@@ -6,22 +6,22 @@ STUNAME = 左余杭
 TRACER = tracer-ysyx
 GITFLAGS = -q --author='$(TRACER) <tracer@ysyx.org>' --no-verify --allow-empty
 
-YSYX_HOME = $(NEMU_HOME)/..
+YSYX_ROOT = $(YSYX_HOME)/..
 WORK_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
-WORK_INDEX = $(YSYX_HOME)/.git/index.$(WORK_BRANCH)
+WORK_INDEX = $(YSYX_ROOT)/.git/index.$(WORK_BRANCH)
 TRACER_BRANCH = $(TRACER)
 
-LOCK_DIR = $(YSYX_HOME)/.git/
+LOCK_DIR = $(YSYX_ROOT)/.git/
 
 # prototype: git_soft_checkout(branch)
 define git_soft_checkout
-	git checkout --detach -q && git reset --soft $(1) -q -- && git checkout $(1) -q --
+        git checkout --detach -q && git reset --soft $(1) -q -- && git checkout $(1) -q --
 endef
 
 # prototype: git_commit(msg)
 define git_commit
-	-@flock $(LOCK_DIR) $(MAKE) -C $(YSYX_HOME) .git_commit MSG='$(1)'
-	-@sync $(LOCK_DIR)
+        -@flock $(LOCK_DIR) $(MAKE) -C $(YSYX_ROOT) .git_commit MSG='$(1)'
+        -@sync $(LOCK_DIR)
 endef
 
 .git_commit:
