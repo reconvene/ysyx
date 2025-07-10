@@ -17,6 +17,10 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <utils/elfParser.h>
+#include <utils/logRingBufferLib.h>
+#include <utils/logStackLib.h>
+
 #include "../monitor/sdb/sdb.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -31,6 +35,14 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+// 仅支持32位指令的logRingBuffer
+#ifdef CONFIG_ITRACE
+static logRingBuffer *instLogRingBuffer=NULL;
+#endif
+#ifdef CONFIG_FTRACE
+static logStack *funcStack=NULL;
+#endif
+
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -44,7 +56,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   WP *changedWP=monitor_wp();
   // 如果发生变化，则暂停nemu
   if(changedWP){
-    printf("%p\n", changedWP);
+    // printf("%p\n", changedWP);
     nemu_state.state=NEMU_STOP;
     printf("the value of watchpoints has changed\n");
     // 释放变化节点
@@ -82,7 +94,25 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
+
+  IFDEF(CONFIG_ISA_riscv,writeLogRingBuffer(instLogRingBuffer, SINGLE_LOG_SIZE, "0x%08X: %08X %s ",s->pc,s->isa.inst,p));
 #endif
+#ifdef CONFIG_FTRACE
+  if (s->isa.inst==0x00008067) {
+    free(unshiftLogStack(funcStack, 0));
+    return;
+  }
+
+  if (s->jalIF) {
+    funcInfo *currentFunc=lookupFunctions(s->pc);
+    funcInfo *targetFunc=lookupFunctions(s->dnpc);
+    // printf("funcName:%s\n",currentFunc->name);
+    if (currentFunc && targetFunc) {
+      shiftLogStack(funcStack, SINGLE_LOG_SIZE, "call <%s> at <%s> PC: 0x%08X",targetFunc->name,currentFunc->name, s->pc);
+    }
+  }
+#endif
+
 }
 
 static void execute(uint64_t n) {
@@ -94,7 +124,6 @@ static void execute(uint64_t n) {
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
-  printf("total execution time:%ld\n",g_nr_guest_inst);
 }
 
 static void statistic() {
@@ -106,9 +135,33 @@ static void statistic() {
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
+
+#ifdef CONFIG_ITRACE
+// 打印环形缓冲区
+static void printInstLogBuffer(){
+  instLogRingBuffer->readIndex=g_nr_guest_inst>=LOG_BUFFER_SIZE ? instLogRingBuffer->writeIndex : 0;
+  uint64_t printLen=g_nr_guest_inst>=LOG_BUFFER_SIZE ? LOG_BUFFER_SIZE : g_nr_guest_inst;
+
+  printLogRingBuffer(instLogRingBuffer, printLen);
+  Log(ANSI_FMT("ERROR INST", ANSI_FG_RED));
+  destroyLogRingBuffer(instLogRingBuffer);
+}
+#endif
+
+#ifdef CONFIG_FTRACE
+// 打印函数调用栈
+static void printFuncStack() {
+  listLogStack(funcStack);
+  destroyLogStack(funcStack);
+  destroyElfParser();
+}
+#endif
+
 void assert_fail_msg() {
   isa_reg_display();
   statistic();
+  IFDEF(CONFIG_ITRACE, printInstLogBuffer());
+  IFDEF(CONFIG_FTRACE, printFuncStack());
 }
 
 /* Simulate how the CPU works. */
@@ -119,6 +172,11 @@ void cpu_exec(uint64_t n) {
       printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
       return;
     default: nemu_state.state = NEMU_RUNNING;
+  }
+
+  if (g_nr_guest_inst==0) {
+    IFDEF(CONFIG_ITRACE, instLogRingBuffer=createLogRingBuffer(LOG_BUFFER_SIZE));
+    IFDEF(CONFIG_FTRACE, funcStack=createLogStack(STACK_SIZE));
   }
 
   uint64_t timer_start = get_time();
@@ -138,6 +196,6 @@ void cpu_exec(uint64_t n) {
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
       // fall through
-    case NEMU_QUIT: statistic();
+    case NEMU_QUIT: statistic(); IFDEF(CONFIG_FTRACE, if (nemu_state.halt_ret) printFuncStack());
   }
 }
