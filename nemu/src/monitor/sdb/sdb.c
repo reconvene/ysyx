@@ -165,15 +165,15 @@ static struct {
   int (*handler) (char *);
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-  {"si","Execute the program for N steps",cmd_si},
-  {"info","View the registers using a specified method",cmd_info},
-  {"x","View memory using an expression and a step size",cmd_x},
-  {"p", "Calculate the expression",cmd_p},
+  { "c",    "Continue the execution of the program", cmd_c },
+  { "q",    "Exit NEMU", cmd_q },
+  {"si",    "Execute the program for N steps",cmd_si},
+  {"info",  "View the registers using a specified method",cmd_info},
+  {"x",     "View memory using an expression and a step size",cmd_x},
+  {"p",     "Calculate the expression",cmd_p},
   {"pTest", "Test expression evaluation",cmd_pTest},
-  {"w", "Monitor the expression",cmd_w},
-  {"d", "Delete the watchpoint",cmd_d},
+  {"w",     "Monitor the expression",cmd_w},
+  {"d",     "Delete the watchpoint",cmd_d},
 
   /* TODO: Add more commands */
 

@@ -13,15 +13,21 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include <memory/host.h>
-#include <memory/paddr.h>
+#include <utils/logRingBufferLib.h>
 #include <device/mmio.h>
 #include <isa.h>
+#include <memory/host.h>
+#include <memory/paddr.h>
+#include <utils.h>
 
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+#endif
+#ifdef CONFIG_MTRACE
+static logRingBuffer *memoryLogRingBuffer=NULL;
+static uint64_t g_nr_memory_action=0;
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
@@ -36,7 +42,18 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
 
+static void printMemoryLogBuffer() {
+  memoryLogRingBuffer->readIndex=g_nr_memory_action>=LOG_BUFFER_SIZE ? memoryLogRingBuffer->writeIndex : 0;
+  uint64_t printLen=g_nr_memory_action>=LOG_BUFFER_SIZE ? LOG_BUFFER_SIZE : g_nr_memory_action;
+
+  printLogRingBuffer(memoryLogRingBuffer, printLen);
+  destroyLogRingBuffer(memoryLogRingBuffer);
+  Log(ANSI_FMT("WRONG MEMORY ACTION", ANSI_FG_RED));
+}
+
+
 static void out_of_bound(paddr_t addr) {
+  IFDEF(CONFIG_MTRACE, printMemoryLogBuffer());
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 }
@@ -48,9 +65,11 @@ void init_mem() {
 #endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  IFDEF(CONFIG_MTRACE, memoryLogRingBuffer=createLogRingBuffer(LOG_BUFFER_SIZE));
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+  IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, SINGLE_LOG_SIZE, "action: read,  targetAddr:0x%08X, length: %d", addr, len*8));
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
@@ -58,7 +77,9 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
+  IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, SINGLE_LOG_SIZE, "action: write, targetAddr:0x%08X, length: %d", addr, len*8));
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }
+
