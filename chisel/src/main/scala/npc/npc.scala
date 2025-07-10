@@ -5,6 +5,7 @@ import chisel3.util._
 import chisel3.experimental._
 import npc.regGroup.regGroup
 import multALU.multALU
+import npc.finish.finishSim
 
 package object riscv32Types {
   val word_len=32
@@ -38,6 +39,10 @@ class npc extends Module{
   val readAddrReg=RegInit(0.U(word_len.W))
   val pcReg=RegInit("h80000000".U(word_len.W))
   val gpr=Module(new regGroup())
+  val finishSim=Module(new finishSim)
+  finishSim.io.clock:=clock
+  finishSim.io.reset:=reset
+  finishSim.io.finishStatus:=0.U
 
   // 提取指令相关部分
   val opcode=io.inst(6,0)
@@ -71,8 +76,8 @@ class npc extends Module{
       gpr.io.writeData:=(src1.asSInt+imm).asUInt
       gpr.io.writeEnable:=true.B
     }
-    is("b11100110000000001".U){
-
+    is("b11100110000000000".U){
+      finishSim.io.finishStatus:=1.U
     }
   }
 

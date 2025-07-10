@@ -10,6 +10,6 @@ object npcVerilog extends App {
   ChiselStage.emitSystemVerilogFile(
     new npc,
     args,
-    firtoolOpts = Array("-disable-all-randomization")
+    firtoolOpts = Array("-disable-all-randomization", "--split-verilog", "-o", "build/sv/npc")
   )
 }
