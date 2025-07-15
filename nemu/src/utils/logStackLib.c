@@ -49,27 +49,30 @@ void destroyLogStack(logStack *inputLogStack) {
 }
 
 // 压栈
-void shiftLogStack(logStack *inputLogStack, uint32_t logSize, char *fmt, ...) {
+void shiftLogStack(logStack *inputLogStack, char *fmt, ...) {
     if (inputLogStack->eleCount+1>inputLogStack->capacity) {
-        char **newLogArr = realloc(inputLogStack->logArr,2 * inputLogStack->eleCount * sizeof(char *));
+        char **newLogArr = realloc(inputLogStack->logArr,2 * inputLogStack->capacity * sizeof(char *));
         if (!newLogArr) {
           free(inputLogStack->logArr);
           free(inputLogStack);
           echoError(MALLOC_ERROR);
         }
         inputLogStack->logArr=newLogArr;
-        inputLogStack->capacity=inputLogStack->eleCount*2;
-    }
-
-    char *currentLog = malloc(logSize);
-    if (!currentLog) {
-      free(currentLog);
-      echoError(MALLOC_ERROR);
+        inputLogStack->capacity*=2;
     }
 
     va_list args;
     va_start(args, fmt);
-    vsnprintf(currentLog, logSize, fmt, args);
+    int requiredLen = vsnprintf(NULL, 0, fmt, args);
+    va_end(args);
+
+    char *currentLog = malloc(requiredLen + 1); // +1 for null terminator
+    if (!currentLog) {
+      echoError(MALLOC_ERROR);
+    }
+
+    va_start(args, fmt);
+    vsprintf(currentLog, fmt, args);
     va_end(args);
 
     memmove(inputLogStack->logArr+1, inputLogStack->logArr,inputLogStack->eleCount* sizeof(char *));
@@ -78,14 +81,13 @@ void shiftLogStack(logStack *inputLogStack, uint32_t logSize, char *fmt, ...) {
 }
 
 // 出栈
-char *unshiftLogStack(logStack *inputLogStack, int adjustMemory) {
-    if (inputLogStack->eleCount - 1 <= 0 && adjustMemory) {
-        printf("Too few elements to execute this function");
-        return NULL;
+void unshiftLogStack(logStack *inputLogStack, int adjustMemory) {
+    if ((inputLogStack->eleCount - 1 <= 0 && adjustMemory) || inputLogStack->eleCount-1 < 0) {
+        // printf("Too few elements to execute this function");
+        return;
     }
 
-    char *tmpString = inputLogStack->logArr[0];
-    inputLogStack->logArr[0] = NULL;
+    free(inputLogStack->logArr[0]);
     inputLogStack->eleCount -= 1;
     memmove(inputLogStack->logArr, inputLogStack->logArr+1, inputLogStack->eleCount* sizeof(char *));
 
@@ -99,7 +101,6 @@ char *unshiftLogStack(logStack *inputLogStack, int adjustMemory) {
         inputLogStack->logArr = newLogArr;
         inputLogStack->capacity=inputLogStack->eleCount;
     }
-    return tmpString;
 }
 
 // 列出栈内所有元素

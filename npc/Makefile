@@ -20,7 +20,15 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc) -name "$(TOPNAME).*v")
+
+# 判断是否被拆分为多模块
+ifeq ($(wildcard vsrc/$(TOPNAME)),)
+    VSRCS = $(shell find $(abspath ./vsrc) -name "$(TOPNAME).*v")
+else
+    VSRCS = $(shell sed 's|^|vsrc/$(TOPNAME)/|' vsrc/$(TOPNAME)/filelist.f)
+	VSRCS += $(shell sed 's|^\./||; s|^|vsrc/$(TOPNAME)/|' vsrc/$(TOPNAME)/firrtl_black_box_resource_files.f)
+endif
+
 CSRCS = $(shell find $(abspath ./csrc) -name "$(TOPNAME)_sim_main.c" -or -name "$(TOPNAME)_sim_main.cc" -or -name "$(TOPNAME)_sim_main.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 
@@ -30,6 +38,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+
+NPCFLAGS ?=
 
 
 #all:sim
@@ -41,7 +51,7 @@ sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
    		--top-module $(TOPNAME) $^ \
    		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
    		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
-	$(BUILD_DIR)/$(TOPNAME)
+	$(BUILD_DIR)/$(TOPNAME) $(NPCFLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)

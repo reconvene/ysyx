@@ -17,7 +17,7 @@ _Noreturn static void echoError(char *errorMessage) {
 }
 
 // 创建环形缓冲区
-logRingBuffer *createLogRingBuffer(int bufferSize) {
+logRingBuffer *createLogRingBuffer(const int bufferSize) {
     logRingBuffer *newLogRingBuffer = malloc(sizeof(logRingBuffer));
     if (!newLogRingBuffer) {
         echoError(MALLOC_ERROR);
@@ -46,25 +46,28 @@ void destroyLogRingBuffer(logRingBuffer *inputLogRingBuffer) {
 }
 
 // 写入环形缓冲区，写满则覆写旧数据
-void writeLogRingBuffer(logRingBuffer *inputLogRingBuffer, uint32_t logSize, const char *fmt, ...) {
-  char *currentLog = malloc(logSize);
+void writeLogRingBuffer(logRingBuffer *inputLogRingBuffer, const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  int requiredLen = vsnprintf(NULL, 0, fmt, args);
+  va_end(args);
+
+  char *currentLog = malloc(requiredLen + 1); // +1 for null terminator
   if (!currentLog) {
     echoError(MALLOC_ERROR);
   }
 
-  va_list args;
   va_start(args, fmt);
-  vsnprintf(currentLog, logSize, fmt, args);
+  vsprintf(currentLog, fmt, args);
   va_end(args);
 
   free(inputLogRingBuffer->logArr[inputLogRingBuffer->writeIndex]);
   inputLogRingBuffer->logArr[inputLogRingBuffer->writeIndex++] = currentLog;
-  inputLogRingBuffer->writeIndex=inputLogRingBuffer->writeIndex%inputLogRingBuffer->capacity;
-
+  inputLogRingBuffer->writeIndex%=inputLogRingBuffer->capacity;
 }
 
 // 读取指定长度的指令
-char **obtainLogRingBuffer(logRingBuffer *inputLogRingBuffer, uint64_t readLength){
+char **obtainLogRingBuffer(logRingBuffer *inputLogRingBuffer, const uint64_t readLength){
     char **newLogArr= malloc(readLength* sizeof(char *));
     if(!newLogArr){
         echoError(MALLOC_ERROR);

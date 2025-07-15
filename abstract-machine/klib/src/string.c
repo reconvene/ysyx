@@ -52,6 +52,7 @@ int strcmp(const char *s1, const char *s2) {
 }
 
 int strncmp(const char *s1, const char *s2, size_t n) {
+    if (!n) return 0;
     size_t i = 0;
     while (s1[i] == s2[i] && (s1[i] != '\0' || s2[i] != '\0') && i < n - 1) i++;
 
@@ -60,9 +61,7 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 
 void *memset(void *s, int c, size_t n) {
     uint8_t *byteS = s;
-    for (size_t i = 0; i < n; i++) {
-        byteS[i] = c;
-    }
+    for (size_t i = 0; i < n; i++) byteS[i] = c;
     return s;
 }
 
@@ -88,10 +87,11 @@ void *memcpy(void *dst, const void *src, size_t n) {
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
+    if (!n) return 0;
     size_t i = 0;
     const uint8_t *s1Byte = s1;
     const uint8_t *s2Byte = s2;
-    while (i < n - 1 && s1Byte[i] == s2Byte[i]) i++;
+    while (i < n-1 && s1Byte[i] == s2Byte[i]) i++;
 
     return s1Byte[i] - s2Byte[i];
 }
