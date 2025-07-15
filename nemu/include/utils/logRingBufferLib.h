@@ -14,10 +14,10 @@ typedef struct {
 #define MALLOC_ERROR "There is something wrong when you try to use the function malloc()"
 #define REALLOC_ERROR "There is something wrong when you try to use the function realloc()"
 
-logRingBuffer *createLogRingBuffer(int bufferSize);
+logRingBuffer *createLogRingBuffer(const int bufferSize);
 void destroyLogRingBuffer(logRingBuffer *inputLogRingBuffer);
-void writeLogRingBuffer(logRingBuffer *inputLogRingBuffer, uint32_t logSize, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
-char **obtainLogRingBuffer(logRingBuffer *inputLogRingBuffer, uint64_t readLength);
+void writeLogRingBuffer(logRingBuffer *buf, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+char **obtainLogRingBuffer(logRingBuffer *inputLogRingBuffer, const uint64_t readLength);
 void printLogRingBuffer(logRingBuffer *inputLogRingBuffer, uint64_t printLength);
 
 #endif //INSTRINGBUFFERLIB_H

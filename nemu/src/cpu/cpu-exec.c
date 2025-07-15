@@ -94,12 +94,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
-
-  IFDEF(CONFIG_ISA_riscv,writeLogRingBuffer(instLogRingBuffer, SINGLE_LOG_SIZE, "0x%08X: %08X %s ",s->pc,s->isa.inst,p));
+  IFDEF(CONFIG_ITRACE,writeLogRingBuffer(instLogRingBuffer, "0x%08X: %08X %s ",s->pc,s->isa.inst,p));
 #endif
+
 #ifdef CONFIG_FTRACE
   if (s->isa.inst==0x00008067) {
-    free(unshiftLogStack(funcStack, 0));
+    unshiftLogStack(funcStack, 0);
     return;
   }
 
@@ -108,7 +108,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     funcInfo *targetFunc=lookupFunctions(s->dnpc);
     // printf("funcName:%s\n",currentFunc->name);
     if (currentFunc && targetFunc) {
-      shiftLogStack(funcStack, SINGLE_LOG_SIZE, "call <%s> at <%s> PC: 0x%08X",targetFunc->name,currentFunc->name, s->pc);
+      shiftLogStack(funcStack, "call <%s> at <%s> PC: 0x%08X",targetFunc->name,currentFunc->name, s->pc);
     }
   }
 #endif

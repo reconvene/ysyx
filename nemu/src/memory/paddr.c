@@ -42,6 +42,7 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
 
+#ifdef CONFIG_MTRACE
 static void printMemoryLogBuffer() {
   memoryLogRingBuffer->readIndex=g_nr_memory_action>=LOG_BUFFER_SIZE ? memoryLogRingBuffer->writeIndex : 0;
   uint64_t printLen=g_nr_memory_action>=LOG_BUFFER_SIZE ? LOG_BUFFER_SIZE : g_nr_memory_action;
@@ -50,7 +51,7 @@ static void printMemoryLogBuffer() {
   destroyLogRingBuffer(memoryLogRingBuffer);
   Log(ANSI_FMT("WRONG MEMORY ACTION", ANSI_FG_RED));
 }
-
+#endif
 
 static void out_of_bound(paddr_t addr) {
   IFDEF(CONFIG_MTRACE, printMemoryLogBuffer());
@@ -69,7 +70,7 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, SINGLE_LOG_SIZE, "action: read,  targetAddr:0x%08X, length: %d", addr, len*8));
+  IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: read,  targetAddr:0x%08X, length: %d", addr, len*8));
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
@@ -77,7 +78,7 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, SINGLE_LOG_SIZE, "action: write, targetAddr:0x%08X, length: %d", addr, len*8));
+  IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: write, targetAddr:0x%08X, length: %d", addr, len*8));
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
