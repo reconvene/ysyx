@@ -1,7 +1,6 @@
 #ifndef CLEARN_STACKLIB_H
 #define CLEARN_STACKLIB_H
-#define STACK_SIZE 8
-#include <stdint.h>
+#define STACK_SIZE 16
 
 typedef struct {
     char **logArr;
@@ -16,9 +15,9 @@ logStack *createLogStack(int initialEleCount);
 
 void destroyLogStack(logStack *inputLogStack);
 
-void shiftLogStack(logStack *inputLogStack, uint32_t logSize, char *fmt, ...) __attribute__((format(printf, 3, 4)));
+void shiftLogStack(logStack *inputLogStack, char *fmt, ...) __attribute__((format(printf, 2, 3)));
 
-char *unshiftLogStack(logStack *inputLogStack, int adjustMemory);
+void unshiftLogStack(logStack *inputLogStack, int adjustMemory);
 
 void listLogStack(logStack *inputLogStack);
 

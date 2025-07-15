@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include <utils/elfParser.h>
 
-
 // 初始化读取内容
 static Elf32_Ehdr *elfHeader=NULL;
 static Elf32_Shdr *elfSectionHeader=NULL;
@@ -23,7 +22,7 @@ static uint32_t funcTableCount=0;
 char *readELF(const char *filename) {
   // 读取elf文件
   FILE *elfFile = fopen(filename, "r");
-  if (elfFile == NULL) {
+  if (!elfFile) {
     panic("The input ELF file does not exist or lacks sufficient permissions");
   }
   // 获取文件大小

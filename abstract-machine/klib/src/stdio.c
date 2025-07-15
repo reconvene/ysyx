@@ -9,6 +9,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
+  panic("Not implemented");
   // 定义va_list
   size_t i=0;
   va_list ap;
@@ -58,6 +59,7 @@ int printf(const char *fmt, ...) {
 
   // 释放va_list，给输出字符串添加终止符，返回写入的有效字符数
   va_end(ap);
+  putch('\0');
   return i;
 }
 
