@@ -13,34 +13,42 @@ module npc(	// src/main/scala/npc/npc.scala:14:7
                 reset,	// src/main/scala/npc/npc.scala:14:7
   output [31:0] io_readAddr,	// src/main/scala/npc/npc.scala:18:12
   output        io_readType,	// src/main/scala/npc/npc.scala:18:12
+                io_readEnable,	// src/main/scala/npc/npc.scala:18:12
   input  [31:0] io_readData,	// src/main/scala/npc/npc.scala:18:12
-  output        io_readEnable,	// src/main/scala/npc/npc.scala:18:12
+  input         io_readReady,	// src/main/scala/npc/npc.scala:18:12
   output [31:0] io_writeAddr,	// src/main/scala/npc/npc.scala:18:12
                 io_writeData,	// src/main/scala/npc/npc.scala:18:12
   output        io_writeEnable,	// src/main/scala/npc/npc.scala:18:12
   output [2:0]  io_byteNum,	// src/main/scala/npc/npc.scala:18:12
   output [31:0] io_pc,	// src/main/scala/npc/npc.scala:18:12
-  input  [31:0] io_inst	// src/main/scala/npc/npc.scala:18:12
+  input  [31:0] io_inst,	// src/main/scala/npc/npc.scala:18:12
+  output        io_quitState	// src/main/scala/npc/npc.scala:18:12
 );
 
-  wire [31:0]      _immExtender_io_immSrc;	// src/main/scala/npc/npc.scala:43:25
-  wire [31:0]      _pcALU_io_out;	// src/main/scala/npc/npc.scala:42:19
-  wire [31:0]      _mainALU_io_out;	// src/main/scala/npc/npc.scala:41:21
-  wire             _mainALU_io_zero;	// src/main/scala/npc/npc.scala:41:21
-  wire             _decoder_io_regWrite;	// src/main/scala/npc/npc.scala:40:21
-  wire [2:0]       _decoder_io_regWriteType;	// src/main/scala/npc/npc.scala:40:21
-  wire             _decoder_io_memWrite;	// src/main/scala/npc/npc.scala:40:21
-  wire             _decoder_io_memRead;	// src/main/scala/npc/npc.scala:40:21
-  wire [2:0]       _decoder_io_immType;	// src/main/scala/npc/npc.scala:40:21
-  wire             _decoder_io_pcIF;	// src/main/scala/npc/npc.scala:40:21
-  wire             _decoder_io_pcAluSrc;	// src/main/scala/npc/npc.scala:40:21
-  wire             _decoder_io_aluSrc;	// src/main/scala/npc/npc.scala:40:21
-  wire [3:0]       _decoder_io_aluOp;	// src/main/scala/npc/npc.scala:40:21
-  wire             _decoder_io_finishIF;	// src/main/scala/npc/npc.scala:40:21
-  wire [31:0]      _gpr_io_rs1Data;	// src/main/scala/npc/npc.scala:38:17
-  wire [31:0]      _gpr_io_rs2Data;	// src/main/scala/npc/npc.scala:38:17
-  reg  [31:0]      pcReg;	// src/main/scala/npc/npc.scala:37:20
-  wire [31:0]      _pcReg_T = pcReg + 32'h4;	// src/main/scala/npc/npc.scala:37:20, :107:55
+  wire [31:0]      _immExtender_io_immSrc;	// src/main/scala/npc/npc.scala:47:25
+  wire [31:0]      _pcALU_io_out;	// src/main/scala/npc/npc.scala:46:19
+  wire [31:0]      _mainALU_io_out;	// src/main/scala/npc/npc.scala:45:21
+  wire             _mainALU_io_zero;	// src/main/scala/npc/npc.scala:45:21
+  wire             _decoder_io_regWrite;	// src/main/scala/npc/npc.scala:44:21
+  wire [2:0]       _decoder_io_regWriteType;	// src/main/scala/npc/npc.scala:44:21
+  wire             _decoder_io_memWrite;	// src/main/scala/npc/npc.scala:44:21
+  wire             _decoder_io_memRead;	// src/main/scala/npc/npc.scala:44:21
+  wire [2:0]       _decoder_io_immType;	// src/main/scala/npc/npc.scala:44:21
+  wire             _decoder_io_pcIF;	// src/main/scala/npc/npc.scala:44:21
+  wire             _decoder_io_pcAluSrc;	// src/main/scala/npc/npc.scala:44:21
+  wire             _decoder_io_aluSrc;	// src/main/scala/npc/npc.scala:44:21
+  wire [3:0]       _decoder_io_aluOp;	// src/main/scala/npc/npc.scala:44:21
+  wire             _decoder_io_finishIF;	// src/main/scala/npc/npc.scala:44:21
+  wire [31:0]      _mem_io_readAddr;	// src/main/scala/npc/npc.scala:43:17
+  wire             _mem_io_readEnable;	// src/main/scala/npc/npc.scala:43:17
+  wire [31:0]      _gpr_io_rs1Data;	// src/main/scala/npc/npc.scala:42:17
+  wire [31:0]      _gpr_io_rs2Data;	// src/main/scala/npc/npc.scala:42:17
+  reg  [31:0]      pcReg;	// src/main/scala/npc/npc.scala:41:20
+  wire [31:0]      mainALU_io_b =
+    _decoder_io_aluSrc ? _immExtender_io_immSrc : _gpr_io_rs2Data;	// src/main/scala/npc/npc.scala:42:17, :44:21, :47:25, :77:20
+  wire             gpr_io_writeEnable =
+    ~(~io_readReady & _decoder_io_memRead) & _decoder_io_regWrite;	// src/main/scala/npc/npc.scala:44:21, :107:{26,27,41}
+  wire [31:0]      _pcReg_T = pcReg + 32'h4;	// src/main/scala/npc/npc.scala:41:20, :111:55
   wire [7:0][31:0] _GEN =
     {{32'h0},
      {32'h0},
@@ -49,59 +57,72 @@ module npc(	// src/main/scala/npc/npc.scala:14:7
      {_immExtender_io_immSrc},
      {_pcReg_T},
      {io_readData},
-     {_mainALU_io_out}};	// src/main/scala/chisel3/util/Mux.scala:126:16, src/main/scala/npc/npc.scala:41:21, :42:19, :43:25, :105:29, :106:29, :107:{29,55}, :108:29, :109:29
-  wire [31:0]      gpr_io_writeData = _GEN[_decoder_io_regWriteType];	// src/main/scala/chisel3/util/Mux.scala:126:16, src/main/scala/npc/npc.scala:40:21, :105:29, :106:29, :107:29, :108:29, :109:29
-  `ifndef SYNTHESIS	// src/main/scala/npc/npc.scala:121:9
-    always @(posedge clock) begin	// src/main/scala/npc/npc.scala:121:9
-      if ((`PRINTF_COND_) & ~reset) begin	// src/main/scala/npc/npc.scala:121:9, :124:9
-        $fwrite(32'h80000002, "pc = 0x%x inst = 0x%x\n", pcReg, io_inst);	// src/main/scala/npc/npc.scala:37:20, :121:9
+     {_mainALU_io_out}};	// src/main/scala/chisel3/util/Mux.scala:126:16, src/main/scala/npc/npc.scala:45:21, :46:19, :47:25, :109:29, :110:29, :111:{29,55}, :112:29, :113:29
+  wire [31:0]      gpr_io_writeData = _GEN[_decoder_io_regWriteType];	// src/main/scala/chisel3/util/Mux.scala:126:16, src/main/scala/npc/npc.scala:44:21, :109:29, :110:29, :111:29, :112:29, :113:29
+  wire             _GEN_0 = io_readReady | ~_decoder_io_memRead;	// src/main/scala/npc/npc.scala:44:21, :118:{21,24}
+  wire             io_readEnable_0 = ~_GEN_0 & _mem_io_readEnable;	// src/main/scala/npc/npc.scala:43:17, :100:16, :118:{21,44}, :119:18
+  `ifndef SYNTHESIS	// src/main/scala/npc/npc.scala:132:9
+    always @(posedge clock) begin	// src/main/scala/npc/npc.scala:132:9
+      if ((`PRINTF_COND_) & ~reset) begin	// src/main/scala/npc/npc.scala:132:9, :137:9
+        $fwrite(32'h80000002, "\npc = 0x%x inst = 0x%x\n", pcReg, io_inst);	// src/main/scala/npc/npc.scala:41:20, :132:9
         $fwrite(32'h80000002,
                 "gprWriteTarget = %d gprWriteData = 0x%x gprWriteEnable = %d\n",
-                io_inst[10:7], gpr_io_writeData, _decoder_io_regWrite);	// src/main/scala/chisel3/util/Mux.scala:126:16, src/main/scala/npc/npc.scala:40:21, :52:{12,21}, :122:9
-        $fwrite(32'h80000002, "regWriteType = %d, aluOp = %d, aluSrc = %d\n",
-                _decoder_io_regWriteType, _decoder_io_aluOp, _decoder_io_aluSrc);	// src/main/scala/npc/npc.scala:40:21, :123:9
+                io_inst[10:7], gpr_io_writeData, gpr_io_writeEnable);	// src/main/scala/chisel3/util/Mux.scala:126:16, src/main/scala/npc/npc.scala:56:{12,21}, :107:26, :133:9
+        $fwrite(32'h80000002,
+                "regWriteType = %d, aluOp = %d, aluSrc = %d, mainALU.out = 0x%x\n",
+                _decoder_io_regWriteType, _decoder_io_aluOp, _decoder_io_aluSrc,
+                _mainALU_io_out);	// src/main/scala/npc/npc.scala:44:21, :45:21, :134:9
+        $fwrite(32'h80000002, "mainALU.a = 0x%x, mainALU.b = 0x%x\n",
+                $signed(_gpr_io_rs1Data), $signed(mainALU_io_b));	// src/main/scala/npc/npc.scala:42:17, :77:20, :135:9
         $fwrite(32'h80000002, "immType = %d, imm = 0x%x, pcALU.out = 0x%x\n",
-                _decoder_io_immType, _immExtender_io_immSrc, _pcALU_io_out);	// src/main/scala/npc/npc.scala:40:21, :42:19, :43:25, :124:9
+                _decoder_io_immType, _immExtender_io_immSrc, _pcALU_io_out);	// src/main/scala/npc/npc.scala:44:21, :46:19, :47:25, :136:9
+        $fwrite(32'h80000002,
+                "memReadEnable = %d, readReady = %d, memWriteEnable = %d, readAddr = 0x%x, readData = 0x%x\n",
+                io_readEnable_0, io_readReady, _decoder_io_memWrite, _mem_io_readAddr,
+                io_readData);	// src/main/scala/npc/npc.scala:43:17, :44:21, :100:16, :118:44, :119:18, :137:9
       end
     end // always @(posedge)
   `endif // not def SYNTHESIS
   always @(posedge clock) begin	// src/main/scala/npc/npc.scala:14:7
     if (reset)	// src/main/scala/npc/npc.scala:14:7
-      pcReg <= 32'h80000000;	// src/main/scala/npc/npc.scala:37:20
-    else	// src/main/scala/npc/npc.scala:14:7
-      pcReg <= _decoder_io_pcIF ? _pcALU_io_out : _pcReg_T;	// src/main/scala/npc/npc.scala:37:20, :40:21, :42:19, :107:55, :114:13
+      pcReg <= 32'h80000000;	// src/main/scala/npc/npc.scala:41:20
+    else if (_GEN_0)	// src/main/scala/npc/npc.scala:118:21
+      pcReg <= _decoder_io_pcIF ? _pcALU_io_out : _pcReg_T;	// src/main/scala/npc/npc.scala:41:20, :44:21, :46:19, :111:55, :120:15
   end // always @(posedge)
-  regGroup gpr (	// src/main/scala/npc/npc.scala:38:17
+  regGroup gpr (	// src/main/scala/npc/npc.scala:42:17
     .clock          (clock),
     .reset          (reset),
-    .io_rs1         (io_inst[18:15]),	// src/main/scala/npc/npc.scala:54:{13,22}
-    .io_rs2         (io_inst[23:20]),	// src/main/scala/npc/npc.scala:55:{13,22}
-    .io_rd          (io_inst[10:7]),	// src/main/scala/npc/npc.scala:52:{12,21}
+    .io_rs1         (io_inst[18:15]),	// src/main/scala/npc/npc.scala:58:{13,22}
+    .io_rs2         (io_inst[23:20]),	// src/main/scala/npc/npc.scala:59:{13,22}
+    .io_rd          (io_inst[10:7]),	// src/main/scala/npc/npc.scala:56:{12,21}
     .io_writeData   (gpr_io_writeData),	// src/main/scala/chisel3/util/Mux.scala:126:16
-    .io_writeEnable (_decoder_io_regWrite),	// src/main/scala/npc/npc.scala:40:21
+    .io_writeEnable (gpr_io_writeEnable),	// src/main/scala/npc/npc.scala:107:26
     .io_rs1Data     (_gpr_io_rs1Data),
-    .io_rs2Data     (_gpr_io_rs2Data)
-  );	// src/main/scala/npc/npc.scala:38:17
-  dataMemory mem (	// src/main/scala/npc/npc.scala:39:17
-    .io_targetAddr  (_mainALU_io_out),	// src/main/scala/npc/npc.scala:41:21
-    .io_funct3      (io_inst[14:12]),	// src/main/scala/npc/npc.scala:48:21
-    .io_rs2         (_gpr_io_rs2Data),	// src/main/scala/npc/npc.scala:38:17
-    .io_memWrite    (_decoder_io_memWrite),	// src/main/scala/npc/npc.scala:40:21
-    .io_memRead     (_decoder_io_memRead),	// src/main/scala/npc/npc.scala:40:21
-    .io_readAddr    (io_readAddr),
+    .io_rs2Data     (_gpr_io_rs2Data),
+    .io_a0State     (io_quitState)
+  );	// src/main/scala/npc/npc.scala:42:17
+  dataMemory mem (	// src/main/scala/npc/npc.scala:43:17
+    .io_targetAddr  (_mainALU_io_out),	// src/main/scala/npc/npc.scala:45:21
+    .io_funct3      (io_inst[14:12]),	// src/main/scala/npc/npc.scala:52:21
+    .io_rs2         (_gpr_io_rs2Data),	// src/main/scala/npc/npc.scala:42:17
+    .io_memWrite    (_decoder_io_memWrite),	// src/main/scala/npc/npc.scala:44:21
+    .io_memRead     (_decoder_io_memRead),	// src/main/scala/npc/npc.scala:44:21
+    .io_readAddr    (_mem_io_readAddr),
     .io_readType    (io_readType),
-    .io_readEnable  (io_readEnable),
+    .io_readEnable  (_mem_io_readEnable),
     .io_writeAddr   (io_writeAddr),
     .io_writeData   (io_writeData),
     .io_writeEnable (io_writeEnable),
     .io_byteNum     (io_byteNum)
-  );	// src/main/scala/npc/npc.scala:39:17
-  decoder decoder (	// src/main/scala/npc/npc.scala:40:21
-    .io_opcode        (io_inst[6:0]),	// src/main/scala/npc/npc.scala:47:21
-    .io_funct3        (io_inst[14:12]),	// src/main/scala/npc/npc.scala:48:21
-    .io_funct7        (io_inst[31:25]),	// src/main/scala/npc/npc.scala:49:21
-    .io_zero          (_mainALU_io_zero),	// src/main/scala/npc/npc.scala:41:21
-    .io_compareResult (_mainALU_io_out[0]),	// src/main/scala/npc/npc.scala:41:21, :79:43
+  );	// src/main/scala/npc/npc.scala:43:17
+  decoder decoder (	// src/main/scala/npc/npc.scala:44:21
+    .clock            (clock),
+    .reset            (reset),
+    .io_opcode        (io_inst[6:0]),	// src/main/scala/npc/npc.scala:51:21
+    .io_funct3        (io_inst[14:12]),	// src/main/scala/npc/npc.scala:52:21
+    .io_funct7        (io_inst[31:25]),	// src/main/scala/npc/npc.scala:53:21
+    .io_zero          (_mainALU_io_zero),	// src/main/scala/npc/npc.scala:45:21
+    .io_compareResult (_mainALU_io_out[0]),	// src/main/scala/npc/npc.scala:45:21, :83:43
     .io_regWrite      (_decoder_io_regWrite),
     .io_regWriteType  (_decoder_io_regWriteType),
     .io_memWrite      (_decoder_io_memWrite),
@@ -112,31 +133,33 @@ module npc(	// src/main/scala/npc/npc.scala:14:7
     .io_aluSrc        (_decoder_io_aluSrc),
     .io_aluOp         (_decoder_io_aluOp),
     .io_finishIF      (_decoder_io_finishIF)
-  );	// src/main/scala/npc/npc.scala:40:21
-  multALU mainALU (	// src/main/scala/npc/npc.scala:41:21
-    .io_a      (_gpr_io_rs1Data),	// src/main/scala/npc/npc.scala:38:17
-    .io_b      (_decoder_io_aluSrc ? _immExtender_io_immSrc : _gpr_io_rs2Data),	// src/main/scala/npc/npc.scala:38:17, :40:21, :43:25, :73:20
-    .io_opcode (_decoder_io_aluOp),	// src/main/scala/npc/npc.scala:40:21
+  );	// src/main/scala/npc/npc.scala:44:21
+  multALU mainALU (	// src/main/scala/npc/npc.scala:45:21
+    .io_a      (_gpr_io_rs1Data),	// src/main/scala/npc/npc.scala:42:17
+    .io_b      (mainALU_io_b),	// src/main/scala/npc/npc.scala:77:20
+    .io_opcode (_decoder_io_aluOp),	// src/main/scala/npc/npc.scala:44:21
     .io_out    (_mainALU_io_out),
     .io_zero   (_mainALU_io_zero)
-  );	// src/main/scala/npc/npc.scala:41:21
-  multALU pcALU (	// src/main/scala/npc/npc.scala:42:19
-    .io_a      (_decoder_io_pcAluSrc ? pcReg : _gpr_io_rs1Data),	// src/main/scala/npc/npc.scala:37:20, :38:17, :40:21, :82:18
-    .io_b      (_immExtender_io_immSrc),	// src/main/scala/npc/npc.scala:43:25
+  );	// src/main/scala/npc/npc.scala:45:21
+  multALU pcALU (	// src/main/scala/npc/npc.scala:46:19
+    .io_a      (_decoder_io_pcAluSrc ? pcReg : _gpr_io_rs1Data),	// src/main/scala/npc/npc.scala:41:20, :42:17, :44:21, :86:18
+    .io_b      (_immExtender_io_immSrc),	// src/main/scala/npc/npc.scala:47:25
     .io_opcode (4'h0),
     .io_out    (_pcALU_io_out),
     .io_zero   (/* unused */)
-  );	// src/main/scala/npc/npc.scala:42:19
-  immExtender immExtender (	// src/main/scala/npc/npc.scala:43:25
+  );	// src/main/scala/npc/npc.scala:46:19
+  immExtender immExtender (	// src/main/scala/npc/npc.scala:47:25
     .io_inst    (io_inst),
-    .io_immType (_decoder_io_immType),	// src/main/scala/npc/npc.scala:40:21
+    .io_immType (_decoder_io_immType),	// src/main/scala/npc/npc.scala:44:21
     .io_immSrc  (_immExtender_io_immSrc)
-  );	// src/main/scala/npc/npc.scala:43:25
-  finishSim finishSim (	// src/main/scala/npc/npc.scala:44:23
+  );	// src/main/scala/npc/npc.scala:47:25
+  finishSim finishSim (	// src/main/scala/npc/npc.scala:48:23
     .clock        (clock),
     .reset        (reset),
-    .finishStatus (_decoder_io_finishIF)	// src/main/scala/npc/npc.scala:40:21
-  );	// src/main/scala/npc/npc.scala:44:23
-  assign io_pc = pcReg;	// src/main/scala/npc/npc.scala:14:7, :37:20
+    .finishStatus (_decoder_io_finishIF)	// src/main/scala/npc/npc.scala:44:21
+  );	// src/main/scala/npc/npc.scala:48:23
+  assign io_readAddr = _mem_io_readAddr;	// src/main/scala/npc/npc.scala:14:7, :43:17
+  assign io_readEnable = io_readEnable_0;	// src/main/scala/npc/npc.scala:14:7, :100:16, :118:44, :119:18
+  assign io_pc = pcReg;	// src/main/scala/npc/npc.scala:14:7, :41:20
 endmodule
 
