@@ -7,7 +7,6 @@ module multALU(	// src/main/scala/npc/ALU/multALU.scala:22:7
   output        io_zero	// src/main/scala/npc/ALU/multALU.scala:24:14
 );
 
-  wire [31:0] io_out_0;	// src/main/scala/npc/ALU/multALU.scala:63:21, :65:14
   wire        _aluSeq_31_singleALUIO_s;	// src/main/scala/npc/ALU/multALU.scala:38:11
   wire        _aluSeq_30_singleALUIO_s;	// src/main/scala/npc/ALU/multALU.scala:38:11
   wire        _aluSeq_30_singleALUIO_cout;	// src/main/scala/npc/ALU/multALU.scala:38:11
@@ -72,56 +71,40 @@ module multALU(	// src/main/scala/npc/ALU/multALU.scala:22:7
   wire        _aluSeq_0_singleALUIO_s;	// src/main/scala/npc/ALU/multALU.scala:38:11
   wire        _aluSeq_0_singleALUIO_cout;	// src/main/scala/npc/ALU/multALU.scala:38:11
   wire [31:0] inputB = io_opcode == 4'h0 ? io_b : 32'h0 - io_b;	// src/main/scala/npc/ALU/multALU.scala:42:{19,30,45}
-  wire [62:0] _io_out_T_2 = {{31{io_a[31]}}, io_a} << io_b[4:0];	// src/main/scala/npc/ALU/multALU.scala:65:{23,30}
-  assign io_out_0 =
-    io_opcode == 4'h2
-      ? _io_out_T_2[31:0]
-      : io_opcode == 4'h4
-          ? {31'h0, $signed(io_a) < $signed(io_b)}
-          : io_opcode == 4'h6
-              ? {31'h0, io_a < io_b}
-              : io_opcode == 4'h8
-                  ? io_a ^ io_b
-                  : io_opcode == 4'hA
-                      ? io_a >> io_b[4:0]
-                      : io_opcode == 4'hB
-                          ? $signed($signed(io_a) >>> io_b[4:0])
-                          : io_opcode == 4'hC
-                              ? io_a | io_b
-                              : io_opcode == 4'hE
-                                  ? io_a & io_b
-                                  : {_aluSeq_31_singleALUIO_s,
-                                     _aluSeq_30_singleALUIO_s,
-                                     _aluSeq_29_singleALUIO_s,
-                                     _aluSeq_28_singleALUIO_s,
-                                     _aluSeq_27_singleALUIO_s,
-                                     _aluSeq_26_singleALUIO_s,
-                                     _aluSeq_25_singleALUIO_s,
-                                     _aluSeq_24_singleALUIO_s,
-                                     _aluSeq_23_singleALUIO_s,
-                                     _aluSeq_22_singleALUIO_s,
-                                     _aluSeq_21_singleALUIO_s,
-                                     _aluSeq_20_singleALUIO_s,
-                                     _aluSeq_19_singleALUIO_s,
-                                     _aluSeq_18_singleALUIO_s,
-                                     _aluSeq_17_singleALUIO_s,
-                                     _aluSeq_16_singleALUIO_s,
-                                     _aluSeq_15_singleALUIO_s,
-                                     _aluSeq_14_singleALUIO_s,
-                                     _aluSeq_13_singleALUIO_s,
-                                     _aluSeq_12_singleALUIO_s,
-                                     _aluSeq_11_singleALUIO_s,
-                                     _aluSeq_10_singleALUIO_s,
-                                     _aluSeq_9_singleALUIO_s,
-                                     _aluSeq_8_singleALUIO_s,
-                                     _aluSeq_7_singleALUIO_s,
-                                     _aluSeq_6_singleALUIO_s,
-                                     _aluSeq_5_singleALUIO_s,
-                                     _aluSeq_4_singleALUIO_s,
-                                     _aluSeq_3_singleALUIO_s,
-                                     _aluSeq_2_singleALUIO_s,
-                                     _aluSeq_1_singleALUIO_s,
-                                     _aluSeq_0_singleALUIO_s};	// src/main/scala/npc/ALU/multALU.scala:38:11, :56:{10,16}, :63:21, :65:{14,23,37}, :71:{14,26}, :76:{14,33}, :81:{14,23}, :86:{14,30,37}, :91:{14,23,30}, :96:{14,23}, :101:{14,23}
+  wire [31:0] outWire =
+    {_aluSeq_31_singleALUIO_s,
+     _aluSeq_30_singleALUIO_s,
+     _aluSeq_29_singleALUIO_s,
+     _aluSeq_28_singleALUIO_s,
+     _aluSeq_27_singleALUIO_s,
+     _aluSeq_26_singleALUIO_s,
+     _aluSeq_25_singleALUIO_s,
+     _aluSeq_24_singleALUIO_s,
+     _aluSeq_23_singleALUIO_s,
+     _aluSeq_22_singleALUIO_s,
+     _aluSeq_21_singleALUIO_s,
+     _aluSeq_20_singleALUIO_s,
+     _aluSeq_19_singleALUIO_s,
+     _aluSeq_18_singleALUIO_s,
+     _aluSeq_17_singleALUIO_s,
+     _aluSeq_16_singleALUIO_s,
+     _aluSeq_15_singleALUIO_s,
+     _aluSeq_14_singleALUIO_s,
+     _aluSeq_13_singleALUIO_s,
+     _aluSeq_12_singleALUIO_s,
+     _aluSeq_11_singleALUIO_s,
+     _aluSeq_10_singleALUIO_s,
+     _aluSeq_9_singleALUIO_s,
+     _aluSeq_8_singleALUIO_s,
+     _aluSeq_7_singleALUIO_s,
+     _aluSeq_6_singleALUIO_s,
+     _aluSeq_5_singleALUIO_s,
+     _aluSeq_4_singleALUIO_s,
+     _aluSeq_3_singleALUIO_s,
+     _aluSeq_2_singleALUIO_s,
+     _aluSeq_1_singleALUIO_s,
+     _aluSeq_0_singleALUIO_s};	// src/main/scala/npc/ALU/multALU.scala:38:11, :57:17
+  wire [62:0] _io_out_T_1 = {{31{io_a[31]}}, io_a} << io_b[4:0];	// src/main/scala/npc/ALU/multALU.scala:67:{23,30}
   singleALU aluSeq_0 (	// src/main/scala/npc/ALU/multALU.scala:38:11
     .singleALUIO_a    (io_a[0]),	// src/main/scala/npc/ALU/multALU.scala:46:36
     .singleALUIO_b    (inputB[0]),	// src/main/scala/npc/ALU/multALU.scala:42:19, :47:38
@@ -346,7 +329,22 @@ module multALU(	// src/main/scala/npc/ALU/multALU.scala:22:7
     .singleALUIO_s    (_aluSeq_31_singleALUIO_s),
     .singleALUIO_cout (/* unused */)
   );	// src/main/scala/npc/ALU/multALU.scala:38:11
-  assign io_out = io_out_0;	// src/main/scala/npc/ALU/multALU.scala:22:7, :63:21, :65:14
-  assign io_zero = io_out_0 == 32'h0;	// src/main/scala/npc/ALU/multALU.scala:22:7, :58:22, :63:21, :65:14
+  assign io_out =
+    io_opcode == 4'h2
+      ? _io_out_T_1[31:0]
+      : io_opcode == 4'h4
+          ? {31'h0, $signed(io_a) < $signed(io_b)}
+          : io_opcode == 4'h6
+              ? {31'h0, io_a < io_b}
+              : io_opcode == 4'h8
+                  ? io_a ^ io_b
+                  : io_opcode == 4'hA
+                      ? io_a >> io_b[4:0]
+                      : io_opcode == 4'hB
+                          ? $signed($signed(io_a) >>> io_b[4:0])
+                          : io_opcode == 4'hC
+                              ? io_a | io_b
+                              : io_opcode == 4'hE ? io_a & io_b : outWire;	// src/main/scala/npc/ALU/multALU.scala:22:7, :57:17, :62:9, :65:21, :67:{14,23,37}, :73:{14,26}, :78:{14,33}, :83:{14,23}, :88:{14,30,37}, :93:{14,23,30}, :98:{14,23}, :103:{14,23}
+  assign io_zero = outWire == 32'h0;	// src/main/scala/npc/ALU/multALU.scala:22:7, :57:17, :59:23
 endmodule
 

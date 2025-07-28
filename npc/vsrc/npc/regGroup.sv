@@ -8,25 +8,26 @@ module regGroup(	// src/main/scala/npc/regGroup/regGroup.scala:6:7
   input  [31:0] io_writeData,	// src/main/scala/npc/regGroup/regGroup.scala:7:12
   input         io_writeEnable,	// src/main/scala/npc/regGroup/regGroup.scala:7:12
   output [31:0] io_rs1Data,	// src/main/scala/npc/regGroup/regGroup.scala:7:12
-                io_rs2Data	// src/main/scala/npc/regGroup/regGroup.scala:7:12
+                io_rs2Data,	// src/main/scala/npc/regGroup/regGroup.scala:7:12
+  output        io_a0State	// src/main/scala/npc/regGroup/regGroup.scala:7:12
 );
 
-  reg  [31:0]       regGroup_0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_1;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_2;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_3;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_4;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_5;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_6;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_7;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_8;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_9;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_10;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_11;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_12;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_13;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_14;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-  reg  [31:0]       regGroup_15;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
+  reg  [31:0]       regGroup_0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_1;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_2;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_3;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_4;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_5;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_6;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_7;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_8;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_9;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_10;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_11;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_12;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_13;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_14;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+  reg  [31:0]       regGroup_15;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
   wire [15:0][31:0] _GEN =
     {{regGroup_15},
      {regGroup_14},
@@ -43,63 +44,64 @@ module regGroup(	// src/main/scala/npc/regGroup/regGroup.scala:6:7
      {regGroup_3},
      {regGroup_2},
      {regGroup_1},
-     {regGroup_0}};	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :26:13
+     {regGroup_0}};	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :28:13
   always @(posedge clock) begin	// src/main/scala/npc/regGroup/regGroup.scala:6:7
     if (reset) begin	// src/main/scala/npc/regGroup/regGroup.scala:6:7
-      regGroup_0 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_1 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_2 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_3 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_4 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_5 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_6 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_7 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_8 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_9 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_10 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_11 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_12 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_13 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_14 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      regGroup_15 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
+      regGroup_0 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_1 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_2 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_3 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_4 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_5 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_6 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_7 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_8 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_9 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_10 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_11 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_12 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_13 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_14 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      regGroup_15 <= 32'h0;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
     end
     else begin	// src/main/scala/npc/regGroup/regGroup.scala:6:7
-      automatic logic _GEN_0 = (|io_rd) & io_writeEnable;	// src/main/scala/npc/regGroup/regGroup.scala:21:{13,20}
-      if (_GEN_0 & ~(|io_rd))	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{13,20,38}, :22:20
-        regGroup_0 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h1)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_1 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h2)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_2 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h3)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_3 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h4)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_4 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h5)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_5 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h6)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_6 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h7)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_7 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h8)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_8 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'h9)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_9 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'hA)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_10 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'hB)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_11 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'hC)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_12 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'hD)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_13 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & io_rd == 4'hE)	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_14 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
-      if (_GEN_0 & (&io_rd))	// src/main/scala/npc/regGroup/regGroup.scala:19:25, :21:{20,38}, :22:20
-        regGroup_15 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:19:25
+      automatic logic _GEN_0 = (|io_rd) & io_writeEnable;	// src/main/scala/npc/regGroup/regGroup.scala:23:{13,20}
+      if (_GEN_0 & ~(|io_rd))	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{13,20,38}, :24:20
+        regGroup_0 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h1)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_1 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h2)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_2 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h3)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_3 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h4)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_4 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h5)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_5 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h6)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_6 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h7)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_7 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h8)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_8 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'h9)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_9 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'hA)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_10 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'hB)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_11 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'hC)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_12 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'hD)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_13 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & io_rd == 4'hE)	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_14 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
+      if (_GEN_0 & (&io_rd))	// src/main/scala/npc/regGroup/regGroup.scala:20:25, :23:{20,38}, :24:20
+        regGroup_15 <= io_writeData;	// src/main/scala/npc/regGroup/regGroup.scala:20:25
     end
   end // always @(posedge)
-  assign io_rs1Data = _GEN[io_rs1];	// src/main/scala/npc/regGroup/regGroup.scala:6:7, :26:13
-  assign io_rs2Data = _GEN[io_rs2];	// src/main/scala/npc/regGroup/regGroup.scala:6:7, :26:13, :27:13
+  assign io_rs1Data = _GEN[io_rs1];	// src/main/scala/npc/regGroup/regGroup.scala:6:7, :28:13
+  assign io_rs2Data = _GEN[io_rs2];	// src/main/scala/npc/regGroup/regGroup.scala:6:7, :28:13, :29:13
+  assign io_a0State = regGroup_10[0];	// src/main/scala/npc/regGroup/regGroup.scala:6:7, :20:25, :30:13
 endmodule
 

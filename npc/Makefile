@@ -4,7 +4,7 @@ INC_PATH ?=
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert --trace-fst
+				-O3 --x-assign fast --x-initial fast --noassert --trace
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -35,11 +35,17 @@ CSRCS += $(SRC_AUTO_BIND)
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
+# rules for sdb
+CSRCS += $(shell find $(abspath ./csrc/module) -name "*.c")
+INC_PATH += $(abspath ./include)
+INC_PATH += /usr/include/readline
+LDFLAGS += -lreadline
+
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\"" -g
 
-NPCFLAGS ?=
+NPCFLAGS ?= "--diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so"
 
 
 #all:sim
@@ -51,7 +57,8 @@ sim: $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
    		--top-module $(TOPNAME) $^ \
    		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
    		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
-	$(BUILD_DIR)/$(TOPNAME) $(NPCFLAGS)
+	@echo "$(NPCFLAGS) --image=$(IMG)"
+	$(BUILD_DIR)/$(TOPNAME) $(NPCFLAGS) --image=$(IMG)
 
 clean:
 	rm -rf $(BUILD_DIR)

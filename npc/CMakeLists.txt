@@ -9,7 +9,10 @@ include_directories(
         /usr/local/share/verilator/include/vltstd
         build/obj_dir
         /home/admin123/ysyx-workbench/nvboard/usr/include
-        ./include
+        /home/admin123/ysyx-branches/npc/npc/include
 )
 
-add_executable(npc csrc/streamingLight_sim_main.cpp)
+file(GLOB_RECURSE CSRCS_MODULE "csrc/*.c")
+file(GLOB CSRCS_MAIN "csrc/*.cpp")
+
+add_executable(npc ${CSRCS_MODULE} ${CSRCS_MAIN})
