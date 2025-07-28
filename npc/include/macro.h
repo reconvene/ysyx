@@ -15,15 +15,19 @@
 #define GPR_SIZE 32
 #define CONFIG_MBASE 0x80000000
 #define RESET_VECTOR 0x80000000
-#define CONFIG_FST 1
+#define CONFIG_VCD 1
 #define CONFIG_ITRACE 1
 #define CONFIG_MTRACE 1
 #define CONFIG_FTRACE 1
 #define CONFIG_WP 1
 #define CONFIG_DIFFTEST 1
+#define CONFIG_DEVICE 1
 typedef uint32_t word_t;
 typedef int32_t sword_t;
 typedef uint32_t vaddr_t;
+
+#define CONFIG_SERIAL_MMIO 0xa00003f8
+#define CONFIG_RTC_MMIO 0xa0000048
 
 // 使用一部分nemu的宏
 // macro testing

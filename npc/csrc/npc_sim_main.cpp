@@ -1,6 +1,6 @@
 #include "Vnpc.h"
 #include "verilated.h"
-#include "verilated_fst_c.h"
+#include "verilated_vcd_c.h"
 #include <random>
 #include <sys/stat.h>
 #include <macro.h>
@@ -11,6 +11,7 @@
 #include <utils/elfParser.h>
 #include <argsParser.h>
 #include <difftest/diiftest.h>
+#include <device/mmio.h>
 #include "Vnpc___024root.h"
 // #include <nvboard.h>
 
@@ -28,14 +29,14 @@ static _Bool stopIF = false;
 // 定义上下文环境和运行对象
 static VerilatedContext *contextP = NULL;
 static Vnpc *top = NULL;
-word_t *gprBaseAddress=NULL;
+word_t *gprBaseAddress = NULL;
 
 // 定义错误诊断函数;
 void diagnoseError();
 
-#ifdef CONFIG_FST
+#ifdef CONFIG_VCD
 // 定义FST波形追踪
-static VerilatedFstC *waveTracer = NULL;
+static VerilatedVcdC *waveTracer = NULL;
 static word_t timeCount = 0;
 #endif
 
@@ -80,8 +81,6 @@ static void printFuncStack() {
 
 // 虚拟地址转换
 static inline word_t vaddr2paddr(word_t vaddr) {
-    printf("vaddr2paddr: vaddr = 0x%08X, RESET_VECTOR = 0x%08X, result = 0x%08X\n",
-    top->io_readAddr, RESET_VECTOR, top->io_readAddr - RESET_VECTOR);
     if (vaddr - CONFIG_MBASE > MEM_SIZE) {
         diagnoseError();
         printf("the address reading: 0x%08X is overflow\n", vaddr);
@@ -97,15 +96,16 @@ uint8_t *vaddr2pptr(word_t vaddr) {
         printf("the address reading: 0x%08X is overflow\n", vaddr);
         assert(0);
     }
-    return &pmem[vaddr-CONFIG_MBASE];
+    return &pmem[vaddr - CONFIG_MBASE];
 }
 
 // 无符号读取内存
 word_t pmemRead(vaddr_t vaddr, uint8_t len) {
-    uint32_t raw = 0;
-    memcpy(&raw, &pmem[vaddr2paddr(vaddr)], len);
+    word_t raw = 0;
+
+    IFDEF(CONFIG_DEVICE, if (!mmioRead(&raw,vaddr,len))) memcpy(&raw, &pmem[vaddr2paddr(vaddr)], len);
     IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: read ,  targetAddr: 0x%08X, value: 0x%08X, length: %d, type: unsigned", vaddr, raw, len*8));
-    top->io_readReady=true;
+    top->io_readReady = true;
     switch (len) {
         case 1: return (uint8_t) raw;
         case 2: return (uint16_t) raw;
@@ -116,10 +116,11 @@ word_t pmemRead(vaddr_t vaddr, uint8_t len) {
 
 // 有符号读取内存
 sword_t pmemSignedRead(vaddr_t vaddr, uint8_t len) {
-    uint32_t raw = 0;
-    memcpy(&raw, &pmem[vaddr2paddr(vaddr)], len);
-    IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: read ,  targetAddr: 0x%08X, value: 0x%08X, length: %d, type: signed", vaddr, raw, len*8));
-    top->io_readReady=true;
+    word_t raw = 0;
+
+    IFDEF(CONFIG_DEVICE, if (!mmioRead(&raw,vaddr,len))) memcpy(&raw, &pmem[vaddr2paddr(vaddr)], len);
+    IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: read ,  targetAddr: 0x%08X, value: 0x%08X, length: %d, type: signed\n", vaddr, raw, len*8));
+    top->io_readReady = true;
     switch (len) {
         case 1: return (int8_t) raw;
         case 2: return (int16_t) raw;
@@ -130,8 +131,8 @@ sword_t pmemSignedRead(vaddr_t vaddr, uint8_t len) {
 
 // 写入内存
 void pmemWrite(vaddr_t vaddr, word_t data, uint8_t len) {
-    IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: write,  targetAddr: 0x%08X, value: 0x%08X, length: %d, type: unsigned", vaddr, top->io_writeData, len*8));
-    memcpy(&pmem[vaddr2paddr(vaddr)], &data, len);
+    IFDEF(CONFIG_MTRACE, g_nr_memory_action++; writeLogRingBuffer(memoryLogRingBuffer, "action: write,  targetAddr: 0x%08X, value: 0x%08X, length: %d, type: unsigned\n", vaddr, top->io_writeData, len*8));
+    IFDEF(CONFIG_DEVICE, if (!mmioWrite(data,vaddr,len))) memcpy(&pmem[vaddr2paddr(vaddr)], &data, len);
 }
 
 // void nvboard_bind_all_pins(Vps2Display *topModule);
@@ -143,7 +144,7 @@ void moveForward(int steps) {
         top->eval();
         top->clock = 0;
         top->eval();
-        IFDEF(CONFIG_FST, waveTracer->dump(timeCount++));
+        IFDEF(CONFIG_VCD, waveTracer->dump(timeCount++));
     }
 }
 
@@ -158,11 +159,8 @@ void diagnoseError() {
 
 // 单步 执行
 static void executeOnce() {
-    // if (execCount>=31) {moveForward(1); execCount++; return;}
-    top->io_readReady=false;
     top->io_inst = *(word_t *) &pmem[top->io_pc - CONFIG_MBASE];
-    if (top->io_readEnable) top->io_readData = top->io_readType ? pmemSignedRead(top->io_readAddr, top->io_byteNum) : pmemRead(top->io_readAddr, top->io_byteNum);
-    if (top->io_writeEnable) pmemWrite(top->io_writeAddr, top->io_writeData, top->io_byteNum);
+    // if (execCount>=31) {moveForward(1); execCount++; return;}
 
     IFDEF(CONFIG_ITRACE, writeLogRingBuffer(instLogRingBuffer, "0x%08X: %08X",top->io_pc,top->io_inst));
 #ifdef CONFIG_FTRACE
@@ -187,7 +185,11 @@ static void executeOnce() {
 
     moveForward(1);
     // nvboard_update();
-    execCount++;
+    if (!top->io_readEnable) execCount++;
+
+    top->io_readReady = false;
+    if (top->io_readEnable) top->io_readData = top->io_readType ? pmemSignedRead(top->io_readAddr, top->io_byteNum) : pmemRead(top->io_readAddr, top->io_byteNum);
+    if (top->io_writeEnable) pmemWrite(top->io_writeAddr, top->io_writeData, top->io_byteNum);
 
 #ifdef CONFIG_FTRACE
     if (jalIF) {
@@ -201,36 +203,35 @@ static void executeOnce() {
 
     if (contextP->gotFinish()) {
         if (top->io_quitState) {
-            printf("HIT BAD TRAP AT PC: 0x%08X\n",top->io_pc);
+            printf("HIT BAD TRAP AT PC: 0x%08X\n", top->io_pc);
             diagnoseError();
-        }
-        else printf("HIT GOOD TRAP AT PC: 0x%08X\n",top->io_pc);
+        } else printf("HIT GOOD TRAP AT PC: 0x%08X\n", top->io_pc);
         printf("Total execution count:%d\n", execCount);
     }
 }
 
 // 执行N次
 void executeN(word_t step) {
-    stopIF=false;
+    stopIF = false;
     if (contextP->gotFinish()) {
         printf("The simulation has ended. Please exit and restart NPC\n");
         return;
     }
 
     for (word_t i = step; i > 0 && !contextP->gotFinish() && !stopIF; --i) {
+        // printf("difftest at pc: 0x%08X\n", top->io_pc);
         if (step <= INST_PRINT_COUNT) printf("0x%08X: %08X\n", top->io_pc, pmemRead(top->io_pc, 4));
         // if (execCount>=31) return;
         executeOnce();
         IFDEF(CONFIG_DIFFTEST, if (!top->io_readEnable) {
-            printf("difftest at pc: 0x%08X\n", top->io_pc);
-            difftest_step(1);
-        });
+              difftest_step(1,top->io_pc);
+              });
 #ifdef CONFIG_WP
         // 监听监视点
-        WP *changedWP=monitor_wp();
+        WP *changedWP = monitor_wp();
         // 如果发生变化，则暂停nemu
-        if(changedWP){
-            stopIF=true;
+        if (changedWP) {
+            stopIF = true;
             printf("the value of watchpoints has changed\n");
             // 释放变化节点
             free_wp(changedWP);
@@ -240,16 +241,19 @@ void executeN(word_t step) {
 }
 
 static const uint32_t img[] = {
-    0x800007b7,
+    /*0x800007b7,
     0xfff78793,
     0x002786b3,
-    0x0037a023,
+    0x0037a023,*/
+    0x800007b7,
+    0x00478793,
+    0x0007a283,
     0x00100073,
     // some data
     0xdeadbeef
 };
 
-word_t imageSize=sizeof(img);
+word_t imageSize = sizeof(img);
 
 // 加载映像文件
 void loadImage(const char *filename) {
@@ -278,8 +282,8 @@ void loadImage(const char *filename) {
     // 读取文件
     size_t readSize = fread(pmem, 1, elfStat.st_size, elfFile);
     assert(readSize == elfStat.st_size);
-    imageSize=elfStat.st_size;
-    printf("load specified image successfully, size:%dB\n",imageSize);
+    imageSize = elfStat.st_size;
+    printf("load specified image successfully, size:%dB\n", imageSize);
     fclose(elfFile);
 }
 
@@ -294,14 +298,14 @@ static void initNpc(int argc, char **argv) {
     top = new Vnpc{contextP};
     if (!top) panic("Failed to initial npc module\n");
     printf("gprBaseAddress:0x%p\n", &top->rootp->npc__DOT__gpr__DOT__regGroup_0);
-    gprBaseAddress=&top->rootp->npc__DOT__gpr__DOT__regGroup_0;
+    gprBaseAddress = &top->rootp->npc__DOT__gpr__DOT__regGroup_0;
 
     // 绑定模块引脚
     // nvboard_bind_all_pins(top);
 
-#ifdef CONFIG_FST
+#ifdef CONFIG_VCD
     // 初始化fst
-    waveTracer = new VerilatedFstC;
+    waveTracer = new VerilatedVcdC;
     top->trace(waveTracer, 20);
     waveTracer->open("build/topWave.fst");
 #endif
@@ -319,8 +323,10 @@ static void initNpc(int argc, char **argv) {
 
 // 销毁npc
 static void destroyNpc() {
+#ifdef CONFIG_VCD
     waveTracer->close();
     delete waveTracer;
+#endif
     delete top;
     delete contextP;
 }
@@ -331,6 +337,9 @@ int main(int argc, char **argv) {
 
     // 参数解析
     argsParser(argc, argv);
+
+    // 初始化mmio
+    IFDEF(CONFIG_DEVICE, mmioDeviceInit());
 
     IFDEF(CONFIG_ITRACE, instLogRingBuffer=createLogRingBuffer(LOG_BUFFER_SIZE));
     IFDEF(CONFIG_MTRACE, memoryLogRingBuffer=createLogRingBuffer(LOG_BUFFER_SIZE));
@@ -347,5 +356,6 @@ int main(int argc, char **argv) {
 
     // 销毁npc
     destroyNpc();
+    mmioDeviceDestroy();
     return top->io_quitState;
 }

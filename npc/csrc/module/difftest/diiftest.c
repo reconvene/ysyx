@@ -5,7 +5,10 @@
 void (*ref_difftest_init)(int port)=NULL;
 void (*ref_difftest_memcpy)(word_t addr, void *buf, size_t n, bool direction)=NULL;
 void (*ref_difftest_regcpy)(void *dut, bool direction)=NULL;
+vaddr_t (*ref_difftest_pccpy)(vaddr_t addr, bool direction)=NULL;
 void (* ref_difftest_exec)(uint64_t n)=NULL;
+
+static _Bool skip_ref=0;
 
 // 初始化差分测试
 void init_difftest(char *fileName, word_t imageSize) {
@@ -25,6 +28,9 @@ void init_difftest(char *fileName, word_t imageSize) {
     ref_difftest_regcpy = (void (*)(void *dut, bool direction))dlsym(soFile, "difftest_regcpy");
     assert(ref_difftest_regcpy);
 
+    ref_difftest_pccpy = (vaddr_t (*)(vaddr_t addr, bool direction))dlsym(soFile, "difftest_pccpy");
+    assert(ref_difftest_pccpy);
+
     ref_difftest_exec = (void (*)(uint64_t n))dlsym(soFile, "difftest_exec");
     assert(ref_difftest_exec);
 
@@ -38,6 +44,7 @@ void init_difftest(char *fileName, word_t imageSize) {
     printf("RESET_VECTOR: 0x%08X\ngprBase: %p\n", RESET_VECTOR, gprBaseAddress);
 }
 
+// 检查寄存器是否相同
 void difftest_checkregs() {
     uint32_t refGpr[16]={};
     ref_difftest_regcpy(refGpr, DIFFTEST_TO_DUT);
@@ -55,6 +62,13 @@ void difftest_checkregs() {
     }
 }
 
+// 检查PC是否相同
+void difftest_checkpc(vaddr_t currentPC) {
+    vaddr_t refPC=ref_difftest_pccpy(0, DIFFTEST_TO_DUT);
+    if (currentPC != refPC) panic("refPC: 0x%08X, dutPC: 0x%08X, they are different\n", refPC, currentPC);
+}
+
+// 检查内存是否相同
 void difftest_checkmem() {
     uint8_t *refMem = (uint8_t *)malloc(MEM_SIZE);
     if (refMem == NULL) {
@@ -71,8 +85,23 @@ void difftest_checkmem() {
     free(refMem);
 }
 
-void difftest_step(word_t n) {
+// 跳过下一次比对
+void difftest_skip_ref() {
+    skip_ref = 1;
+}
+
+// ref执行一步，并进行比对
+void difftest_step(word_t n, vaddr_t currentPC) {
+    // 如果跳过，则把dut的寄存器和pc复制过去
+    if (skip_ref) {
+        ref_difftest_regcpy(gprBaseAddress, DIFFTEST_TO_REF);
+        ref_difftest_pccpy(currentPC, DIFFTEST_TO_REF);
+        skip_ref = 0;
+        return;
+    }
+
     ref_difftest_exec(n);
     // difftest_checkmem();
     difftest_checkregs();
+    difftest_checkpc(currentPC);
 }
