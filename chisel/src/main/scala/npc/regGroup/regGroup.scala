@@ -13,10 +13,12 @@ class regGroup extends Module{
 
     val rs1Data=Output(UInt(32.W))
     val rs2Data=Output(UInt(32.W))
+    val a0State=Output(Bool())
   })
 
-  // 声明32个32位的寄存器
+  // 声明16个32位的寄存器
   val regGroup = RegInit(VecInit(Seq.fill(16)(0.U(32.W))))
+
   // 如果写入目标不是$0，并且写入接口为高电平，则写入
   when(io.rd=/=0.U && io.writeEnable){
     regGroup(io.rd):=io.writeData
@@ -25,6 +27,6 @@ class regGroup extends Module{
   // 绑定输出接口
   io.rs1Data:=regGroup(io.rs1)
   io.rs2Data:=regGroup(io.rs2)
-
+  io.a0State:=regGroup(10)
 //  printf("x1 = 0x%x, x2 = 0x%x, x3 = 0x%x\n", regGroup(1), regGroup(2), regGroup(3))
 }

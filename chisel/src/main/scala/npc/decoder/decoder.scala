@@ -86,6 +86,7 @@ class decoder extends Module{
       io.aluSrc:=typeRs2.U
       io.aluOp:=Mux(io.funct3<6.U, typeSignedLess.U ## 0.U, typeUnsignedLess.U ## 0.U)
       io.immType:=typeB.U
+      printf(p"io.zero:${io.zero}\n")
       io.pcIF:=MuxCase(0.U,Seq(
         (io.funct3===0.U) -> io.zero,
         (io.funct3===1.U) -> ~io.zero,
