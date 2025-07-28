@@ -3,35 +3,84 @@
 #include <klib-macros.h>
 #include <stdarg.h>
 #include <stddef.h>
-
-#include "../../am/include/am.h"
+#include <string.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-int printf(const char *fmt, ...) {
-  panic("Not implemented");
-  // 定义va_list
+static void putCharDirectly(char ch, char *buf, size_t *position) {
+  putch(ch);
+  *position +=1;
+}
+
+static void putCharIntoBuf(char ch, char *buf, size_t *position) {
+  buf[*position] = ch;
+  *position +=1;
+}
+
+static void generalVAParser(void (*putChar)(char ch, char *buf, size_t *position),const char *fmt, char *buf, size_t *position, va_list ap) {
   size_t i=0;
-  va_list ap;
-  va_start(ap,fmt);
 
   // 遍历格式化字符串
   while (fmt[i] != '\0') {
     // 如果没有遇到%则不进行匹配
     if (fmt[i] != '%') {
-      putch(fmt[i++]);
+      putChar(fmt[i++], buf, position);
       continue;
     }
 
     // 遇到%则对后面的符号进行匹配
     i++;
+
+    // 声明修饰符
+    _Bool fillZero=0;
+    _Bool longType=0;
+    // 声明宽度
+    size_t width=0;
+
+    if (fmt[i]=='0') {
+      fillZero=1;
+      i++;
+    }
+
+    while (fmt[i] >= '0' && fmt[i] <= '9') {
+      width=width*10+fmt[i++]-'0';
+    }
+
+    if (fmt[i]=='l') {
+      longType=1;
+      i++;
+    }
+
     switch (fmt[i]) {
-      // 十进制数字
+        // 十进制数字
       case 'd': {
         char currentStr[32]={0};
         // 转数字为字符串，并更新写索引
-        int strLen=itoa(currentStr,va_arg(ap, int));
-        for (int j=0; j<strLen; j++) putch(currentStr[j]);
+
+        int strLen=longType?itoa(currentStr,va_arg(ap, long)):itoa(currentStr,va_arg(ap, int));
+        for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(fillZero?'0':' ', buf, position);
+        for (int j=0; j<strLen; j++) putChar(currentStr[j], buf, position);
+        break;
+      }
+        // 无符号十进制数字
+      case 'u': {
+        char currentStr[32]={0};
+        // 转数字为字符串，并更新写索引
+
+        int strLen=longType?itoa(currentStr,va_arg(ap, unsigned long)):itoa(currentStr,va_arg(ap, unsigned int));
+        for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(fillZero?'0':' ', buf, position);
+        for (int j=0; j<strLen; j++) putChar(currentStr[j], buf, position);
+        break;
+      }
+        // 十六进制数字
+      case 'x':
+      case 'X':
+        {
+        char currentStr[9]={0};
+        // 转数字为字符串，并更新写索引
+        int strLen=longType?htoa(currentStr,va_arg(ap, long)):htoa(currentStr,va_arg(ap, int));
+        for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(fillZero?'0':' ', buf, position);
+        for (int j=0; j<strLen; j++) putChar(currentStr[j], buf, position);
         break;
       }
 
@@ -39,17 +88,26 @@ int printf(const char *fmt, ...) {
       case 's': {
         // 取出字符串并遍历，然后更新写索引
         char *currentStr = va_arg(ap, char *);
+        int strLen=strlen(currentStr);
+        for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(' ', buf, position);
+        for (int j=0;j<strLen;j++) putChar(currentStr[j], buf, position);
+        break;
+      }
 
-        while (*currentStr!='\0') {
-          putch(*currentStr++);
-        }
+        // 字符
+      case 'c': {
+        // 取出字符串并遍历，然后更新写索引
+        char currentChar = (char)va_arg(ap, int);
+        for (int lackingWidth=1-width;lackingWidth<0;lackingWidth++) putChar(' ', buf, position);
+        putChar(currentChar, buf, position);
         break;
       }
 
         // 默认/未定义情况
       default:
-        putch('%');
-        putch(fmt[i]);
+        panic("invalid fmt format");
+        /*putChar('%', buf, position);
+        putChar(fmt[i], buf, position);*/
         break;
     }
 
@@ -57,10 +115,19 @@ int printf(const char *fmt, ...) {
     i++;
   }
 
-  // 释放va_list，给输出字符串添加终止符，返回写入的有效字符数
+  putChar('\0', buf, position);
+  *position -=1;
+}
+
+int printf(const char *fmt, ...) {
+  // 定义va_list
+  va_list ap;
+  va_start(ap,fmt);
+  size_t position=0;
+  generalVAParser(putCharDirectly,fmt,NULL,&position,ap);
+  // 释放va_list
   va_end(ap);
-  putch('\0');
-  return i;
+  return position;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
@@ -69,56 +136,14 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 
 // 输出格式化字符串到目标字符数组
 int sprintf(char *out, const char *fmt, ...) {
-  // 定义读写索引和va_list
-  size_t i=0;
-  size_t outPosition=0;
+  // 定义va_list
+  size_t position=0;
   va_list ap;
   va_start(ap,fmt);
-
-  // 遍历格式化字符串
-  while (fmt[i] != '\0') {
-    // 如果没有遇到%则不进行匹配
-    if (fmt[i] != '%') {
-      out[outPosition++] = fmt[i++];
-      continue;
-    }
-
-    // 遇到%则对后面的符号进行匹配
-    i++;
-    switch (fmt[i]) {
-      // 十进制数字
-      case 'd': {
-        // 转数字为字符串，并更新写索引
-        outPosition+=itoa(out+outPosition,va_arg(ap, int));
-        break;
-      }
-
-      // 字符串
-      case 's': {
-        // 取出字符串并遍历，然后更新写索引
-        char *currentStr = va_arg(ap, char *);
-        while (*currentStr!='\0') {
-          out[outPosition++] = *currentStr++;
-        }
-        break;
-      }
-
-      // 默认/未定义情况
-      default:
-        // 写入%和匹配位，并更新写索引
-        out[outPosition++] = '%';
-        out[outPosition++] = fmt[i];
-        break;
-    }
-
-    // 更新读索引
-    i++;
-  }
-
-  // 释放va_list，给输出字符串添加终止符，返回写入的有效字符数
+  generalVAParser(putCharIntoBuf,fmt,out,&position,ap);
+  // 释放va_list
   va_end(ap);
-  out[outPosition]='\0';
-  return outPosition;
+  return position;
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {

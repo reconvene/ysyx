@@ -45,6 +45,7 @@ static logStack *funcStack=NULL;
 
 void device_update();
 
+#ifndef CONFIG_TARGET_AM
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
@@ -65,6 +66,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 #endif
 }
+#endif
 
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
@@ -120,7 +122,7 @@ static void execute(uint64_t n) {
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
-    trace_and_difftest(&s, cpu.pc);
+    IFNDEF(CONFIG_TARGET_AM, trace_and_difftest(&s, cpu.pc));
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
