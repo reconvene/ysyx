@@ -36,6 +36,12 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
   memcpy(&cpu.gpr, dut,sizeof(cpu.gpr));
 }
 
+__EXPORT paddr_t difftest_pccpy(paddr_t addr, bool direction) {
+  if (direction==DIFFTEST_TO_DUT) return cpu.pc;
+  cpu.pc = addr;
+  return cpu.pc;
+}
+
 __EXPORT void difftest_exec(uint64_t n) {
   // printf("refPC: 0x%08X\n",cpu.pc);
   cpu_exec(n);

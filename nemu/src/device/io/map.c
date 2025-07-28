@@ -13,10 +13,26 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include <SDL2/SDL_audio.h>
+#include <device/map.h>
 #include <isa.h>
 #include <memory/host.h>
 #include <memory/vaddr.h>
-#include <device/map.h>
+#include <utils/logRingBufferLib.h>
+
+#ifdef CONFIG_DTRACE
+static logRingBuffer *deviceLogRingBuffer=NULL;
+static uint64_t g_nr_device_action=0;
+
+static void printDeviceLogBuffer() {
+  deviceLogRingBuffer->readIndex=g_nr_device_action>=LOG_BUFFER_SIZE ? deviceLogRingBuffer->writeIndex : 0;
+  uint64_t printLen=g_nr_device_action>=LOG_BUFFER_SIZE ? LOG_BUFFER_SIZE : g_nr_device_action;
+
+  printLogRingBuffer(deviceLogRingBuffer, printLen);
+  destroyLogRingBuffer(deviceLogRingBuffer);
+  Log(ANSI_FMT("WRONG DEVICE ACTION", ANSI_FG_RED));
+}
+#endif
 
 #define IO_SPACE_MAX (32 * 1024 * 1024)
 
@@ -34,8 +50,10 @@ uint8_t* new_space(int size) {
 
 static void check_bound(IOMap *map, paddr_t addr) {
   if (map == NULL) {
+    IFDEF(CONFIG_DTRACE, printDeviceLogBuffer());
     Assert(map != NULL, "address (" FMT_PADDR ") is out of bound at pc = " FMT_WORD, addr, cpu.pc);
   } else {
+    IFDEF(CONFIG_DTRACE,if (addr > map->high || addr < map->low) printDeviceLogBuffer());
     Assert(addr <= map->high && addr >= map->low,
         "address (" FMT_PADDR ") is out of bound {%s} [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
         addr, map->name, map->low, map->high, cpu.pc);
@@ -50,9 +68,11 @@ void init_map() {
   io_space = malloc(IO_SPACE_MAX);
   assert(io_space);
   p_space = io_space;
+  IFDEF(CONFIG_DTRACE,deviceLogRingBuffer=createLogRingBuffer(LOG_BUFFER_SIZE));
 }
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {
+  IFDEF(CONFIG_DTRACE, g_nr_device_action++; writeLogRingBuffer(deviceLogRingBuffer, "action: read , targetDevice: %s, targetAddr: 0x%08X, length: %d", !map?"NULL":map->name, addr, len*8));
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
@@ -62,9 +82,12 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
 }
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
+  IFDEF(CONFIG_DTRACE, g_nr_device_action++; writeLogRingBuffer(deviceLogRingBuffer, "action: write, targetDevice: %s, targetAddr: 0x%08X, length: %d", !map?"NULL":map->name, addr, len*8));
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
+  IFDEF(CONFIG_AUDIO_LOCK, if (!strcmp(map->name,"audio-sbuf")) SDL_LockAudio());
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, true);
+  IFDEF(CONFIG_AUDIO_LOCK, if (!strcmp(map->name,"audio-sbuf")) SDL_UnlockAudio());
 }

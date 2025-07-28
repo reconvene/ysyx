@@ -31,6 +31,7 @@ void   free      (void *ptr);
 int    abs       (int x);
 int    atoi      (const char *nptr);
 int    itoa      (char *targetStr,int x);
+int    htoa      (char *targetStr,int x);
 
 // stdio.h
 int    printf    (const char *format, ...);
