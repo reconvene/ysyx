@@ -115,6 +115,10 @@ config AUDIO_CTL_PORT
 config AUDIO_CTL_MMIO
   hex "MMIO address of the audio controller"
   default 0xa0000200
+
+config AUDIO_LOCK
+  bool "Use SDL_LockAudio() to prevent noise during playback"
+  default n
 endif # HAS_AUDIO
 
 menuconfig HAS_DISK

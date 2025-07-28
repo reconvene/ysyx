@@ -19,8 +19,9 @@ class npc extends Module{
 
     val readAddr=Output(UInt(word_len.W))
     val readType=Output(UInt(1.W))
-    val readData=Input(UInt(word_len.W))
     val readEnable=Output(Bool())
+    val readData=Input(UInt(word_len.W))
+    val readReady=Input(Bool())
 
     val writeAddr=Output(UInt(word_len.W))
     val writeData=Output(UInt(word_len.W))
@@ -30,7 +31,10 @@ class npc extends Module{
 
     val pc=Output(UInt(word_len.W))
     val inst=Input(UInt(word_len.W))
+
+    val quitState=Output(Bool())
   })
+
 
   // 声明/初始化相关模块
 //  val readAddrReg=RegInit(0.U(word_len.W))
@@ -100,7 +104,7 @@ class npc extends Module{
   io.byteNum:=mem.io.byteNum
 
   // 寄存器写入
-  gpr.io.writeEnable:=decoder.io.regWrite
+  gpr.io.writeEnable:=Mux(!io.readReady && decoder.io.memRead, false.B, decoder.io.regWrite)
   gpr.io.writeData:=MuxCase(0.U,Seq(
     (decoder.io.regWriteType===typeAluResult.U) -> mainALU.io.out.asUInt,
     (decoder.io.regWriteType===typeMemRead.U) -> io.readData,
@@ -110,16 +114,25 @@ class npc extends Module{
   ))
 
   // pc更新
+  // 如果一直在尝试请求并且没有数据返回则一直不更新pc
+  when(io.readReady || !decoder.io.memRead){
+    io.readEnable:=false.B
+    pcReg:=Mux(decoder.io.pcIF,pcALU.io.out.asUInt,pcReg+4.U)
+  }
   io.pc:=pcReg
-  pcReg:=Mux(decoder.io.pcIF,pcALU.io.out.asUInt,pcReg+4.U)
 
   // 连接终止模块
   finishSim.io.clock:=clock
   finishSim.io.reset:=reset
   finishSim.io.finishStatus:=decoder.io.finishIF
 
-  printf(p"pc = 0x${Hexadecimal(io.pc)} inst = 0x${Hexadecimal(io.inst)}\n")
+  // 连接退出状态
+  io.quitState:=gpr.io.a0State
+
+  printf(p"\npc = 0x${Hexadecimal(io.pc)} inst = 0x${Hexadecimal(io.inst)}\n")
   printf(p"gprWriteTarget = ${gpr.io.rd} gprWriteData = 0x${Hexadecimal(gpr.io.writeData)} gprWriteEnable = ${gpr.io.writeEnable}\n")
-  printf(p"regWriteType = ${decoder.io.regWriteType}, aluOp = ${decoder.io.aluOp}, aluSrc = ${decoder.io.aluSrc}\n")
+  printf(p"regWriteType = ${decoder.io.regWriteType}, aluOp = ${decoder.io.aluOp}, aluSrc = ${decoder.io.aluSrc}, mainALU.out = 0x${Hexadecimal(mainALU.io.out.asUInt)}\n")
+  printf(p"mainALU.a = 0x${Hexadecimal(mainALU.io.a)}, mainALU.b = 0x${Hexadecimal(mainALU.io.b)}\n")
   printf(p"immType = ${decoder.io.immType}, imm = 0x${Hexadecimal(imm.asUInt)}, pcALU.out = 0x${Hexadecimal(pcALU.io.out.asUInt)}\n")
+  printf(p"memReadEnable = ${io.readEnable}, readReady = ${io.readReady}, memWriteEnable = ${decoder.io.memWrite}, readAddr = 0x${Hexadecimal(io.readAddr)}, readData = 0x${Hexadecimal(io.readData)}\n")
 }

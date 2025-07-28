@@ -71,9 +71,12 @@ static inline void update_screen() {
 #endif
 #endif
 
-void vga_update_screen() {
+void vga_update_screen(uint32_t offset, int len, bool is_write) {
   // TODO: call `update_screen()` when the sync register is non-zero,
   // then zero out the sync register
+
+  // 如果更新sync寄存器信息则根据对应信息更新
+  if (is_write && offset==4 && vgactl_port_base[1]) update_screen();
 }
 
 void init_vga() {
@@ -82,7 +85,7 @@ void init_vga() {
 #ifdef CONFIG_HAS_PORT_IO
   add_pio_map ("vgactl", CONFIG_VGA_CTL_PORT, vgactl_port_base, 8, NULL);
 #else
-  add_mmio_map("vgactl", CONFIG_VGA_CTL_MMIO, vgactl_port_base, 8, NULL);
+  add_mmio_map("vgactl", CONFIG_VGA_CTL_MMIO, vgactl_port_base, 8, vga_update_screen);
 #endif
 
   vmem = new_space(screen_size());

@@ -53,11 +53,13 @@ class multALU(width: Int) extends Module {
 
 
   // 拼合输出、判断进位、判断是否为零和是否溢出
-  io.out := Cat(aluSeq.reverse.map(dut => dut.singleALUIO.s))
+  val outWire=Wire(UInt(width.W))
+  outWire := Cat(aluSeq.reverse.map(dut => dut.singleALUIO.s))
   io.carry := aluSeq.last.singleALUIO.cout.asBool
-  io.zero := ~io.out.orR
+  io.zero := ~outWire.orR
   io.less := io.out.asSInt<0.S
   io.overflow := (io.a(width - 1) === inputB(width - 1)) && (io.out(width-1) =/= io.a(width - 1))
+  io.out:=outWire
 
   // 根据操作码执行操作
   switch(io.opcode) {
@@ -103,4 +105,5 @@ class multALU(width: Int) extends Module {
       io.overflow := 0.U
     }
   }
+//  printf(p"opcode=${io.opcode}, a=${io.a}, b=${io.b}, inputB=${inputB}, cin=${io.cin}, out=${io.out}, zero=${io.zero}\n")
 }
