@@ -1,6 +1,7 @@
 package npc.regGroup
 
 import chisel3._
+import riscv32Types._
 
 // 寄存器组模块
 class regGroup extends Module{
@@ -8,16 +9,16 @@ class regGroup extends Module{
     val rs1=Input(UInt(4.W))
     val rs2=Input(UInt(4.W))
     val rd=Input(UInt(4.W))
-    val writeData=Input(UInt(32.W))
+    val writeData=Input(UInt(word_len.W))
     val writeEnable=Input(Bool())
 
-    val rs1Data=Output(UInt(32.W))
-    val rs2Data=Output(UInt(32.W))
+    val rs1Data=Output(UInt(word_len.W))
+    val rs2Data=Output(UInt(word_len.W))
     val a0State=Output(Bool())
   })
 
   // 声明16个32位的寄存器
-  val regGroup = RegInit(VecInit(Seq.fill(16)(0.U(32.W))))
+  val regGroup = RegInit(VecInit(Seq.fill(16)(0.U(word_len.W))))
 
   // 如果写入目标不是$0，并且写入接口为高电平，则写入
   when(io.rd=/=0.U && io.writeEnable){

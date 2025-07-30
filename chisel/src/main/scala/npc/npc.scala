@@ -5,8 +5,8 @@ import chisel3.util._
 import chisel3.experimental._
 import npc.ALU.multALU
 import npc.dataMemory.dataMemory
-import npc.regGroup.regGroup
-import npc.decoder.decoder
+import npc.regGroup._
+import npc.decoder._
 import npc.immExtender.immExtender
 import npc.finish.finishSim
 import riscv32Types._
@@ -40,8 +40,10 @@ class npc extends Module{
 //  val readAddrReg=RegInit(0.U(word_len.W))
   val pcReg=RegInit("h80000000".U(word_len.W))
   val gpr=Module(new regGroup())
+  val csr=Module(new csrGroup())
   val mem=Module(new dataMemory())
   val decoder=Module(new decoder())
+  val systemDecoder=Module(new systemDecoder())
   val mainALU=Module(new multALU(32))
   val pcALU=Module(new multALU(32))
   val immExtender=Module(new immExtender())
@@ -71,6 +73,15 @@ class npc extends Module{
   immExtender.io.inst:=io.inst
   immExtender.io.immType:=decoder.io.immType
   val imm=immExtender.io.immSrc
+
+  // 初始化system类型指令解码器
+  systemDecoder.io.funct3:=funct3
+  systemDecoder.io.rs1:=io.inst(19,15)
+  systemDecoder.io.rd:=io.inst(11,7)
+  systemDecoder.io.imm:=imm
+
+  // 连接主解码器与system解码器
+  decoder.io.systemDecoderResult:=systemDecoder.io.csrCrtl
 
   // 初始化主加法器
   mainALU.io.a:=src1.asSInt
@@ -103,6 +114,15 @@ class npc extends Module{
   io.writeEnable:=mem.io.writeEnable
   io.byteNum:=mem.io.byteNum
 
+  // 初始化CSR寄存器
+  csr.io.csr:=imm(11,0).asUInt
+  csr.io.opcode:=decoder.io.systemInstCtrl.csrOpcode
+  csr.io.ecallIF:=decoder.io.systemInstCtrl.ecallIF
+  csr.io.mretIF:=decoder.io.systemInstCtrl.mretIF
+  csr.io.src1:=src1
+  csr.io.currentPC:=pcReg
+  csr.io.writeEnable:=decoder.io.systemInstCtrl.csrWrite
+
   // 寄存器写入
   gpr.io.writeEnable:=Mux(!io.readReady && decoder.io.memRead, false.B, decoder.io.regWrite)
   gpr.io.writeData:=MuxCase(0.U,Seq(
@@ -110,29 +130,36 @@ class npc extends Module{
     (decoder.io.regWriteType===typeMemRead.U) -> io.readData,
     (decoder.io.regWriteType===typeNextPC.U) -> (pcReg+4.U),
     (decoder.io.regWriteType===typeImmU.U) -> imm.asUInt,
-    (decoder.io.regWriteType===typePCTarget.U) -> pcALU.io.out.asUInt
+    (decoder.io.regWriteType===typePCTarget.U) -> pcALU.io.out.asUInt,
+    (decoder.io.regWriteType===typeCsrRead.U) -> csr.io.csrData
   ))
 
   // pc更新
   // 如果一直在尝试请求并且没有数据返回则一直不更新pc
   when(io.readReady || !decoder.io.memRead){
     io.readEnable:=false.B
-    pcReg:=Mux(decoder.io.pcIF,pcALU.io.out.asUInt,pcReg+4.U)
+    pcReg:=MuxCase(pcReg+4.U,Seq(
+      (decoder.io.pcNextType===typePCNext.U) -> (pcReg+4.U),
+      (decoder.io.pcNextType===typePCAluResult.U) -> pcALU.io.out.asUInt,
+      (decoder.io.pcNextType===typeCsrResult.U) -> csr.io.csrData
+    ))
   }
   io.pc:=pcReg
 
   // 连接终止模块
   finishSim.io.clock:=clock
   finishSim.io.reset:=reset
-  finishSim.io.finishStatus:=decoder.io.finishIF
+  finishSim.io.finishStatus:=decoder.io.systemInstCtrl.ebreakIF
 
   // 连接退出状态
   io.quitState:=gpr.io.a0State
 
-  printf(p"\npc = 0x${Hexadecimal(io.pc)} inst = 0x${Hexadecimal(io.inst)}\n")
+/*  printf(p"\npc = 0x${Hexadecimal(io.pc)} inst = 0x${Hexadecimal(io.inst)}\n")
   printf(p"gprWriteTarget = ${gpr.io.rd} gprWriteData = 0x${Hexadecimal(gpr.io.writeData)} gprWriteEnable = ${gpr.io.writeEnable}\n")
   printf(p"regWriteType = ${decoder.io.regWriteType}, aluOp = ${decoder.io.aluOp}, aluSrc = ${decoder.io.aluSrc}, mainALU.out = 0x${Hexadecimal(mainALU.io.out.asUInt)}\n")
   printf(p"mainALU.a = 0x${Hexadecimal(mainALU.io.a)}, mainALU.b = 0x${Hexadecimal(mainALU.io.b)}\n")
   printf(p"immType = ${decoder.io.immType}, imm = 0x${Hexadecimal(imm.asUInt)}, pcALU.out = 0x${Hexadecimal(pcALU.io.out.asUInt)}\n")
   printf(p"memReadEnable = ${io.readEnable}, readReady = ${io.readReady}, memWriteEnable = ${decoder.io.memWrite}, readAddr = 0x${Hexadecimal(io.readAddr)}, readData = 0x${Hexadecimal(io.readData)}\n")
+  printf(p"pcNextType = ${decoder.io.pcNextType}, pcNext = 0x${Hexadecimal(pcReg)}\n")
+  printf(p"csrWrite = ${decoder.io.systemInstCtrl.csrWrite}, csrRead = ${decoder.io.systemInstCtrl.csrRead}, mretIF = ${systemDecoder.io.csrCrtl.mretIF}\n")*/
 }
