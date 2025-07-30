@@ -5,15 +5,25 @@
 static Context* (*user_handler)(Event, Context*) = NULL;
 
 Context* __am_irq_handle(Context *c) {
+  // printf("handler!\n");
+  // printf("before handler mepc = 0x%08X\n", c->mepc);
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+      // M模式下进入异常则为自陷
+      case 0xb: {
+        ev.event = EVENT_SYSCALL;
+        if (c->GPR1==-1) ev.event = EVENT_YIELD;
+        break;
+      }
       default: ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);
     assert(c != NULL);
   }
+  // printf("after handler mepc = 0x%08X\n", c->mepc);
+  c->mepc+=4;
 
   return c;
 }
@@ -31,7 +41,21 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  // 初始化上下文位置
+  Context *contextLocation=(Context *)(((uintptr_t)kstack.end-sizeof(Context)) & ~(sizeof(uintptr_t) - 1));
+
+  // 初始化上下文
+  Context c = {
+    .gpr = {0},
+    .mcause = 0xb,
+    .mstatus = 0x1800,
+    .mepc = (uintptr_t)entry-4
+  };
+  // 往a0里传输第一个形参参数
+  c.gpr[10]=(uintptr_t)arg;
+  // 返回上下文指针
+  *contextLocation=c;
+  return contextLocation;
 }
 
 void yield() {

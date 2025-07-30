@@ -31,7 +31,7 @@ int atoi(const char* nptr) {
 }
 
 // 整数转字符串，最大支持12位有符号十进制(包括终止符)
-int itoa(char *targetStr,int x) {
+int myitoa(char *targetStr,int x) {
   // 定义缓存字符串和写索引
   uint8_t targetPosition=0;
   char tmpBuffer[12];
@@ -68,9 +68,9 @@ int itoa(char *targetStr,int x) {
   return targetPosition;
 }
 
-// 16进制转字符串，最大支持9位有符号16进制(包括终止符)
-int htoa(char *targetStr,int x) {
-  char tmpBuffer[9];  // uint32_t 最大8位16进制数
+// 16进制转字符串，最大支持17位无符号16进制(包括终止符)
+int htoa(char *targetStr,uint64_t x) {
+  char tmpBuffer[17];  // uint32_t 最大8位16进制数
   uint8_t tmpPosition = 0;
   uint8_t targetPosition=0;
 

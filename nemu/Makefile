@@ -12,7 +12,7 @@
 #
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
-NEMU_HOME ?= /home/admin123/ysyx-branches/pa2/nemu
+NEMU_HOME ?= /home/admin123/ysyx-branches/pa3/nemu
 
 # Sanity check
 ifeq ($(wildcard $(NEMU_HOME)/src/nemu-main.c),)

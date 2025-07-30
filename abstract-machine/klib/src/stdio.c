@@ -57,7 +57,7 @@ static void generalVAParser(void (*putChar)(char ch, char *buf, size_t *position
         char currentStr[32]={0};
         // 转数字为字符串，并更新写索引
 
-        int strLen=longType?itoa(currentStr,va_arg(ap, long)):itoa(currentStr,va_arg(ap, int));
+        int strLen=longType?myitoa(currentStr,va_arg(ap, long)):myitoa(currentStr,va_arg(ap, int));
         for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(fillZero?'0':' ', buf, position);
         for (int j=0; j<strLen; j++) putChar(currentStr[j], buf, position);
         break;
@@ -67,7 +67,7 @@ static void generalVAParser(void (*putChar)(char ch, char *buf, size_t *position
         char currentStr[32]={0};
         // 转数字为字符串，并更新写索引
 
-        int strLen=longType?itoa(currentStr,va_arg(ap, unsigned long)):itoa(currentStr,va_arg(ap, unsigned int));
+        int strLen=longType?myitoa(currentStr,va_arg(ap, unsigned long)):myitoa(currentStr,va_arg(ap, unsigned int));
         for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(fillZero?'0':' ', buf, position);
         for (int j=0; j<strLen; j++) putChar(currentStr[j], buf, position);
         break;
@@ -78,7 +78,7 @@ static void generalVAParser(void (*putChar)(char ch, char *buf, size_t *position
         {
         char currentStr[9]={0};
         // 转数字为字符串，并更新写索引
-        int strLen=longType?htoa(currentStr,va_arg(ap, long)):htoa(currentStr,va_arg(ap, int));
+        int strLen=longType?htoa(currentStr,va_arg(ap, unsigned long)):htoa(currentStr,va_arg(ap, unsigned int));
         for (int lackingWidth=strLen-width;lackingWidth<0;lackingWidth++) putChar(fillZero?'0':' ', buf, position);
         for (int j=0; j<strLen; j++) putChar(currentStr[j], buf, position);
         break;

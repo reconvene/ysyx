@@ -21,8 +21,6 @@
 #include <utils/logRingBufferLib.h>
 #include <utils/logStackLib.h>
 
-#include "../monitor/sdb/sdb.h"
-
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
@@ -35,12 +33,29 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
-// 仅支持32位指令的logRingBuffer
-#ifdef CONFIG_ITRACE
-static logRingBuffer *instLogRingBuffer=NULL;
-#endif
 #ifdef CONFIG_FTRACE
 static logStack *funcStack=NULL;
+
+// 打印函数调用栈
+static void printFuncStack() {
+  listLogStack(funcStack);
+  destroyLogStack(funcStack);
+  destroyElfParser();
+}
+#endif
+
+#ifdef CONFIG_ITRACE
+static logRingBuffer *instLogRingBuffer=NULL;
+
+// 打印环形缓冲区
+static void printInstLogBuffer(){
+  instLogRingBuffer->readIndex=g_nr_guest_inst>=LOG_BUFFER_SIZE ? instLogRingBuffer->writeIndex : 0;
+  uint64_t printLen=g_nr_guest_inst>=LOG_BUFFER_SIZE ? LOG_BUFFER_SIZE : g_nr_guest_inst;
+
+  printLogRingBuffer(instLogRingBuffer, printLen);
+  Log(ANSI_FMT("ERROR INST", ANSI_FG_RED));
+  destroyLogRingBuffer(instLogRingBuffer);
+}
 #endif
 
 void device_update();
@@ -104,17 +119,18 @@ static void exec_once(Decode *s, vaddr_t pc) {
     unshiftLogStack(funcStack, 0);
     return;
   }
+  funcInfo *currentFunc=NULL;
+  funcInfo *targetFunc=NULL;
 
   if (s->jalIF) {
-    funcInfo *currentFunc=lookupFunctions(s->pc);
-    funcInfo *targetFunc=lookupFunctions(s->dnpc);
+    currentFunc=lookupFunctions(s->pc);
+    targetFunc=lookupFunctions(s->dnpc);
     // printf("funcName:%s\n",currentFunc->name);
     if (currentFunc && targetFunc) {
       shiftLogStack(funcStack, "call <%s> at <%s> PC: 0x%08X",targetFunc->name,currentFunc->name, s->pc);
     }
   }
 #endif
-
 }
 
 static void execute(uint64_t n) {
@@ -137,33 +153,12 @@ static void statistic() {
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
-
-#ifdef CONFIG_ITRACE
-// 打印环形缓冲区
-static void printInstLogBuffer(){
-  instLogRingBuffer->readIndex=g_nr_guest_inst>=LOG_BUFFER_SIZE ? instLogRingBuffer->writeIndex : 0;
-  uint64_t printLen=g_nr_guest_inst>=LOG_BUFFER_SIZE ? LOG_BUFFER_SIZE : g_nr_guest_inst;
-
-  printLogRingBuffer(instLogRingBuffer, printLen);
-  Log(ANSI_FMT("ERROR INST", ANSI_FG_RED));
-  destroyLogRingBuffer(instLogRingBuffer);
-}
-#endif
-
-#ifdef CONFIG_FTRACE
-// 打印函数调用栈
-static void printFuncStack() {
-  listLogStack(funcStack);
-  destroyLogStack(funcStack);
-  destroyElfParser();
-}
-#endif
-
 void assert_fail_msg() {
   isa_reg_display();
   statistic();
   IFDEF(CONFIG_ITRACE, printInstLogBuffer());
   IFDEF(CONFIG_FTRACE, printFuncStack());
+  IFDEF(CONFIG_ETRACE, printEcallLogBuffer());
 }
 
 /* Simulate how the CPU works. */
@@ -198,6 +193,10 @@ void cpu_exec(uint64_t n) {
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
       // fall through
-    case NEMU_QUIT: statistic(); IFDEF(CONFIG_FTRACE, if (nemu_state.halt_ret) printFuncStack());
+    case NEMU_QUIT: {
+      statistic();
+      IFDEF(CONFIG_FTRACE, if (nemu_state.halt_ret) printFuncStack());
+      IFDEF(CONFIG_ETRACE, printEcallLogBuffer());
+    }
   }
 }
