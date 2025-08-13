@@ -307,7 +307,7 @@ static void initNpc(int argc, char **argv) {
     // 初始化fst
     waveTracer = new VerilatedVcdC;
     top->trace(waveTracer, 20);
-    waveTracer->open("build/topWave.fst");
+    waveTracer->open("build/topWave.vcd");
 #endif
 
     // 给电路进行复位
