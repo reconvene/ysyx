@@ -65,7 +65,10 @@ void difftest_checkregs() {
 // 检查PC是否相同
 void difftest_checkpc(vaddr_t currentPC) {
     vaddr_t refPC=ref_difftest_pccpy(0, DIFFTEST_TO_DUT);
-    if (currentPC != refPC) panic("refPC: 0x%08X, dutPC: 0x%08X, they are different\n", refPC, currentPC);
+    if (currentPC != refPC) {
+        diagnoseError();
+        panic("refPC: 0x%08X, dutPC: 0x%08X, they are different\n", refPC, currentPC);
+    }
 }
 
 // 检查内存是否相同
