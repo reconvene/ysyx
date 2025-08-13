@@ -1,3 +1,5 @@
+import chisel3._
+
 package object riscv32Types {
   // 字长
   val word_len=32
@@ -34,6 +36,24 @@ package object riscv32Types {
   val typeNextPC=2
   val typeImmU=3
   val typePCTarget=4
+  val typeCsrRead=5
+
+  // CSR寄存器类型
+  val typeCsrMepc="h341"
+  val typeCsrMstatus="h300"
+  val typeCsrMcause="h342"
+  val typeCsrMtvec="h305"
+
+  // CSR写入类型
+  val typeCsrEcall=0
+  val typeCsrWrite=1
+  val typeCsrSet=2
+  val typeCsrClear=3
+
+  // PC跳转目标
+  val typePCNext=0
+  val typePCAluResult=1
+  val typeCsrResult=2
 
   // 符号类型
   val typeUnsigned=0
